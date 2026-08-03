@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050506">
+  <meta name="description" content="CYBERTRMX isolated cyber operations simulator.">
+  <title>CYBERTRMX // Operations Console</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark"><span>C</span></div>
+        <div>
+          <div class="brand-name">CYBERTRMX</div>
+          <div class="brand-sub">RED NODE / 07</div>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Primary navigation">
+        <button class="nav-item active" data-tab="main"><span>01</span> MAIN</button>
+        <button class="nav-item" data-tab="cmd"><span>02</span> CMD</button>
+        <button class="nav-item" data-tab="profile"><span>03</span> PROFILE</button>
+        <button class="nav-item" data-tab="monitor"><span>04</span> MONITOR</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="signal-row"><i></i><span>ISOLATED LAB</span></div>
+        <div class="micro-copy">AUTHORIZED SIMULATION ENVIRONMENT</div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">CYBER OPERATIONS INTERFACE</div>
+          <h1 id="page-title">COMMAND OVERVIEW</h1>
+        </div>
+        <div class="topbar-right">
+          <div class="clock" id="clock">00:00:00</div>
+          <div class="operator-chip">
+            <img src="/assets/avatar.svg" alt="CYBERxDRMA avatar">
+            <div><strong>CYBERxDRMA</strong><span>@drmacze</span></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="tab-panel active" id="tab-main">
+        <div class="hero-grid">
+          <article class="hero-card panel">
+            <div class="panel-label">NODE STATUS</div>
+            <div class="hero-copy">
+              <p class="kicker">PRIVATE CONTROL SURFACE</p>
+              <h2>Observe the signal.<br><em>Control the fiction.</em></h2>
+              <p>Encrypted visual telemetry, deterministic account modeling, and public-network metadata inside a contained operational shell.</p>
+            </div>
+            <div class="hero-terminal" aria-hidden="true">
+              <span>root@trmx:~$ initializing red-node</span>
+              <span>[OK] sandbox boundary verified</span>
+              <span>[OK] public metadata channel armed</span>
+              <span>[OK] simulation kernel synchronized</span>
+              <b>_</b>
+            </div>
+            <div class="orb" aria-hidden="true"><div></div><div></div><div></div></div>
+          </article>
+
+          <article class="identity-card panel">
+            <div class="panel-label">ACTIVE OPERATOR</div>
+            <img class="identity-avatar" src="/assets/avatar.svg" alt="Cyber operator avatar">
+            <h3>CYBERxDRMA</h3>
+            <p>@drmacze</p>
+            <div class="clearance"><span>ACCESS</span><strong>LEVEL 07</strong></div>
+            <div class="identity-code">4F 50 45 52 41 54 4F 52</div>
+          </article>
+        </div>
+
+        <div class="metrics-grid">
+          <article class="metric panel"><span>ACTIVE NODES</span><strong id="nodes-count">27</strong><small>+4.8% / SESSION</small></article>
+          <article class="metric panel"><span>EVENT STREAM</span><strong id="event-count">1,204</strong><small>LIVE BUFFER</small></article>
+          <article class="metric panel"><span>TRACE LATENCY</span><strong id="latency-count">38ms</strong><small>EDGE CHANNEL</small></article>
+          <article class="metric panel"><span>THREAT INDEX</span><strong>LOW</strong><small>CONTAINMENT GREEN</small></article>
+        </div>
+
+        <div class="main-lower-grid">
+          <article class="panel activity-panel">
+            <div class="panel-head"><div><span>LIVE ACTIVITY</span><small>NODE EVENT FEED</small></div><i></i></div>
+            <div class="activity-list" id="activity-list"></div>
+          </article>
+          <article class="panel topology-panel">
+            <div class="panel-head"><div><span>SIGNAL TOPOLOGY</span><small>SIMULATED ROUTE GRAPH</small></div><i></i></div>
+            <div class="topology" aria-hidden="true">
+              <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+              <span class="node n1"></span><span class="node n2"></span><span class="node n3"></span><span class="node n4"></span><span class="node n5"></span>
+              <span class="beam b1"></span><span class="beam b2"></span><span class="beam b3"></span>
+              <div class="core">TRMX<br><small>CORE</small></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-cmd">
+        <article class="terminal-panel panel">
+          <div class="terminal-top">
+            <div><span class="dot red"></span><span class="dot dim"></span><span class="dot dim"></span></div>
+            <strong>CYBERTRMX SECURE COMMAND CHANNEL</strong>
+            <span id="terminal-state">READY</span>
+          </div>
+          <div class="terminal-output" id="terminal-output" aria-live="polite">
+            <div class="line system">CYBERTRMX KERNEL 1.0.0</div>
+            <div class="line muted">Session boundary verified. Command channel is ready.</div>
+          </div>
+          <form class="terminal-form" id="terminal-form" autocomplete="off">
+            <label for="command-input">root@trmx:~$</label>
+            <input id="command-input" name="command" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Command input">
+            <button type="submit">EXECUTE</button>
+          </form>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="tab-profile">
+        <article class="profile-card panel">
+          <div class="profile-banner">
+            <div class="code-rain" aria-hidden="true">
+              <span>01001001</span><span>ACCESS_NODE</span><span>0x7F3A</span><span>CYBERTRMX</span><span>const signal = true;</span><span>10110110</span>
+            </div>
+            <div class="banner-glitch">CYBERTRMX</div>
+          </div>
+          <div class="profile-body">
+            <img class="profile-avatar" src="/assets/avatar.svg" alt="CYBERxDRMA avatar">
+            <div class="profile-identity">
+              <div class="verified-line"><h2>CYBERxDRMA</h2><span>VERIFIED OPERATOR</span></div>
+              <p>@drmacze</p>
+              <div class="profile-tags"><span>RED TEAM VISUALS</span><span>SIMULATION ARCHITECT</span><span>NODE 07</span></div>
+            </div>
+            <div class="profile-status"><i></i> ONLINE</div>
+          </div>
+          <div class="profile-stats">
+            <div><span>SESSION RUNS</span><strong>1,337</strong></div>
+            <div><span>SIMULATION SCORE</span><strong>98.4</strong></div>
+            <div><span>PUBLIC LOOKUPS</span><strong>421</strong></div>
+            <div><span>CLEARANCE</span><strong>07</strong></div>
+          </div>
+          <div class="profile-console">
+            <span>operator.signature</span><strong>“Silence in the wire. Precision in the signal.”</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="tab-monitor">
+        <div class="monitor-grid">
+          <article class="panel chart-panel">
+            <div class="panel-head"><div><span>NETWORK PULSE</span><small>60 SECOND WINDOW</small></div><i></i></div>
+            <canvas id="pulse-canvas" width="1000" height="360" aria-label="Animated network pulse chart"></canvas>
+          </article>
+          <article class="panel system-panel">
+            <div class="panel-head"><div><span>SYSTEM VITALS</span><small>LOCAL RUNTIME</small></div><i></i></div>
+            <div class="vital"><div><span>SIMULATION KERNEL</span><b>96%</b></div><i><em style="--value:96%"></em></i></div>
+            <div class="vital"><div><span>PUBLIC DATA CHANNEL</span><b>82%</b></div><i><em style="--value:82%"></em></i></div>
+            <div class="vital"><div><span>EVENT BUFFER</span><b>73%</b></div><i><em style="--value:73%"></em></i></div>
+            <div class="vital"><div><span>CONTAINMENT</span><b>100%</b></div><i><em style="--value:100%"></em></i></div>
+          </article>
+        </div>
+        <article class="panel log-panel">
+          <div class="panel-head"><div><span>OPERATION LOG</span><small>LOCAL SESSION RECORD</small></div><button id="clear-logs">PURGE VIEW</button></div>
+          <div class="log-table">
+            <div class="log-row log-header"><span>TIME</span><span>CHANNEL</span><span>EVENT</span><span>STATE</span></div>
+            <div id="monitor-logs"></div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

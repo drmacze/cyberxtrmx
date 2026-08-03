@@ -1,13 +1,10 @@
 {
   "name": "cyberxtrmx",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "CYBERTRMX isolated cyber operations simulator with safe public-data adapters.",
-  "type": "module",
+  "description": "CYBERTRMX mobile-first GitHub Pages operations console.",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check public/app.js"
+    "check": "node --check public/app.js"
   },
   "engines": {
     "node": ">=20"

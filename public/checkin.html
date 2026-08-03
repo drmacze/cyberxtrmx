@@ -7,41 +7,36 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>CYBERTRMX / Secure Check-In</title>
   <link rel="stylesheet" href="./checkin.css">
+  <script src="./backend-config.js" defer></script>
   <script src="./checkin.js" defer></script>
 </head>
 <body>
   <main class="checkin-shell">
     <header class="checkin-head">
       <div class="mark">CX</div>
-      <div><small>CYBERTRMX / CONSENT CHANNEL</small><strong>Secure Location Check-In</strong></div>
+      <div><small>CYBERTRMX / SECURE CHANNEL</small><strong>Location Check-In</strong></div>
     </header>
-
     <section class="checkin-stage">
       <div class="signal"></div>
-      <div class="eyebrow">ONE-TIME DEVICE POSITION</div>
-      <h1>Share your current location securely.</h1>
-      <p class="lead">This page can read the location of this device only after you approve the browser permission. Nothing is sent automatically.</p>
-
-      <div class="purpose" id="purpose">Purpose: Location check-in requested by CYBERxDRMA.</div>
-
-      <div class="consent-list">
-        <label><input type="checkbox" id="consent-device"> I understand this uses this device's current location.</label>
-        <label><input type="checkbox" id="consent-share"> I understand I choose whether to share the result.</label>
-      </div>
-
-      <button id="start" disabled>START SECURE CHECK-IN</button>
-
-      <section class="progress" id="progress" hidden>
-        <div class="progress-head"><span id="stage-label">Preparing permission request</span><b id="stage-value">0%</b></div>
-        <div class="track"><i id="bar"></i></div>
-        <div class="steps">
-          <span data-step="permission">PERMISSION</span>
-          <span data-step="first">FIRST FIX</span>
-          <span data-step="refine">REFINE</span>
-          <span data-step="verify">VERIFY</span>
-        </div>
+      <div class="eyebrow">EXPIRING LOCATION REQUEST</div>
+      <h1>Confirm your current location.</h1>
+      <p class="lead">This request can read the current position of this device after browser approval. You can review the coordinates before anything is sent.</p>
+      <section class="request-card" id="request-card">
+        <div><small>REQUEST STATUS</small><strong id="request-status">CHECKING LINK</strong></div>
+        <div><small>REQUESTED BY</small><strong id="request-workspace">CYBERTRMX Workspace</strong></div>
+        <div><small>PURPOSE</small><strong id="request-purpose">Loading request details…</strong></div>
+        <div><small>EXPIRES</small><strong id="request-expiry">—</strong></div>
       </section>
-
+      <div class="consent-list">
+        <label><input type="checkbox" id="consent-device"> I understand that this page will request the current location of this device.</label>
+        <label><input type="checkbox" id="consent-submit"> I understand that the result is sent only after I press Send check-in.</label>
+      </div>
+      <button id="start" disabled>GET CURRENT LOCATION</button>
+      <section class="progress" id="progress" hidden>
+        <div class="progress-head"><span id="stage-label">Preparing location request</span><b id="stage-value">0%</b></div>
+        <div class="track"><i id="bar"></i></div>
+        <div class="steps"><span data-step="permission">PERMISSION</span><span data-step="first">FIRST FIX</span><span data-step="refine">REFINE</span><span data-step="verify">REVIEW</span></div>
+      </section>
       <section class="result" id="result" hidden>
         <small>POSITION RESULT</small>
         <h2 id="coordinate">—</h2>
@@ -51,14 +46,16 @@
           <div><span>QUALITY</span><b id="quality">—</b></div>
           <div><span>UPDATED</span><b id="updated">—</b></div>
         </div>
-        <div class="actions">
-          <button id="share">SHARE LOCATION</button>
-          <button id="apple" class="secondary">OPEN APPLE MAPS</button>
-          <button id="google" class="secondary">OPEN GOOGLE MAPS</button>
-        </div>
+        <div class="actions primary-actions"><button id="submit-checkin">SEND CHECK-IN</button><button id="share" class="secondary">SHARE RESULT</button></div>
+        <div class="actions map-buttons"><button id="default-map" class="secondary">OPEN MAP APP</button><button id="apple" class="secondary">APPLE MAPS</button><button id="google" class="secondary">GOOGLE MAPS</button><button id="osm" class="secondary">OPENSTREETMAP</button></div>
       </section>
-
-      <p class="privacy">You can cancel at any time. Closing this page stops location sampling. CYBERTRMX does not receive your coordinates automatically.</p>
+      <section class="receipt" id="receipt" hidden>
+        <small>CHECK-IN RECEIVED</small>
+        <h2>Your location was sent.</h2>
+        <p id="receipt-copy">The request owner can now review the point, accuracy, timestamp, and evidence receipt in Operations.</p>
+        <code id="receipt-id"></code>
+      </section>
+      <p class="privacy">Closing this page stops location sampling. The request owner receives only the submitted coordinate, accuracy, sample count, time, and basic browser context.</p>
     </section>
   </main>
   <div class="toast" id="toast"></div>

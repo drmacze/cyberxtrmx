@@ -1,5 +1,5 @@
-const CACHE = 'cybertrmx-v15';
-const ASSETS = ['./', './index.html', './styles.css', './intel.css', './intel-workspace.css', './mobile.css', './refine.css', './landing.css', './profile.css', './system-upgrade.css', './app.js', './intel.js', './intel-workspace.js', './guide.js', './profile.js', './motion.js', './system-upgrade.js', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'cybertrmx-v16';
+const ASSETS = ['./', './index.html', './styles.css', './intel.css', './intel-workspace.css', './mobile.css', './refine.css', './landing.css', './profile.css', './system-upgrade.css', './tracker-v2.css', './app.js', './intel.js', './intel-workspace.js', './guide.js', './profile.js', './motion.js', './system-upgrade.js', './tracker-v2.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (event) => {

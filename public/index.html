@@ -16,21 +16,10 @@
   <script src="./app.js" defer></script>
 </head>
 <body>
-  <div class="boot-screen" id="boot-screen">
-    <div class="boot-window">
-      <div class="boot-brand">CYBERTRMX <span>RED NODE</span></div>
-      <div class="boot-copy" id="boot-copy">Power-on self test</div>
-      <div class="boot-track"><i id="boot-progress"></i></div>
-      <div class="boot-log" id="boot-log"></div>
-    </div>
-  </div>
-
+  <div class="boot-screen" id="boot-screen"><div class="boot-window"><div class="boot-brand">CYBERTRMX <span>RED NODE</span></div><div class="boot-copy" id="boot-copy">Power-on self test</div><div class="boot-track"><i id="boot-progress"></i></div><div class="boot-log" id="boot-log"></div></div></div>
   <div class="shell">
     <aside class="rail" id="rail">
-      <div class="brand">
-        <div class="brand-glyph">CX</div>
-        <div><strong>CYBERTRMX</strong><small>OPS / NODE-07</small></div>
-      </div>
+      <div class="brand"><div class="brand-glyph">CX</div><div><strong>CYBERTRMX</strong><small>OPS / NODE-07</small></div></div>
       <nav>
         <button class="nav-item active" data-tab="overview"><b>01</b><span>Overview</span></button>
         <button class="nav-item" data-tab="terminal"><b>02</b><span>Terminal</span></button>
@@ -38,96 +27,31 @@
         <button class="nav-item" data-tab="monitor"><b>04</b><span>Monitor</span></button>
         <button class="nav-item" data-tab="profile"><b>05</b><span>Profile</span></button>
       </nav>
-      <div class="rail-foot">
-        <div class="live-dot"><i></i> NODE ONLINE</div>
-        <small>SEA-07 / OMEGA</small>
-      </div>
+      <div class="rail-foot"><div class="live-dot"><i></i> NODE ONLINE</div><small>SEA-07 / OMEGA</small></div>
     </aside>
-
     <main>
-      <header class="topbar">
-        <button class="menu" id="menu">☰</button>
-        <div><small id="breadcrumb">WORKSPACE / OVERVIEW</small><h1 id="title">Operations Overview</h1></div>
-        <div class="top-actions">
-          <span class="utc" id="clock">00:00:00</span>
-          <button class="operator" data-tab="profile"><img src="./icon.svg" alt=""><span><b>CYBERxDRMA</b><small>drmacze</small></span></button>
-        </div>
-      </header>
-
+      <header class="topbar"><button class="menu" id="menu">☰</button><div><small id="breadcrumb">WORKSPACE / OVERVIEW</small><h1 id="title">Operations Overview</h1></div><div class="top-actions"><span class="utc" id="clock">00:00:00</span><button class="operator" data-tab="profile"><img src="./icon.svg" alt=""><span><b>CYBERxDRMA</b><small>drmacze</small></span></button></div></header>
       <section class="view active" id="view-overview">
-        <div class="summary-strip">
-          <div><small>RUNTIME</small><strong id="sum-runtime">OFFLINE</strong><span id="sum-runtime-note">boot required</span></div>
-          <div><small>MODULES</small><strong id="sum-modules">0 / 4</strong><span>local registry</span></div>
-          <div><small>ACTIVE CASE</small><strong id="sum-case">NONE</strong><span id="sum-target">no target</span></div>
-          <div><small>EVENTS</small><strong id="sum-events">0012</strong><span>session buffer</span></div>
-        </div>
-
+        <div class="summary-strip"><div><small>RUNTIME</small><strong id="sum-runtime">OFFLINE</strong><span id="sum-runtime-note">boot required</span></div><div><small>MODULES</small><strong id="sum-modules">0 / 4</strong><span>local registry</span></div><div><small>ACTIVE CASE</small><strong id="sum-case">NONE</strong><span id="sum-target">no target</span></div><div><small>EVENTS</small><strong id="sum-events">0012</strong><span>session buffer</span></div></div>
         <div class="grid overview-grid">
-          <article class="panel command-center">
-            <div class="panel-head"><div><small>CONTROL PLANE</small><h2>Operator workspace</h2></div><span class="badge">NODE-07</span></div>
-            <div class="command-brief">
-              <div><small>CURRENT STAGE</small><strong id="current-stage">INITIALIZATION</strong><p id="stage-copy">Boot the runtime and prepare the local module registry.</p></div>
-              <button data-tab="terminal">OPEN TERMINAL</button>
-            </div>
-            <div class="step-list" id="step-list"></div>
-          </article>
-
-          <article class="panel process-panel">
-            <div class="panel-head"><div><small>PROCESS TABLE</small><h2>Runtime services</h2></div><span class="status-dot"></span></div>
-            <div class="process-table" id="process-table"></div>
-          </article>
-
-          <article class="panel feed-panel">
-            <div class="panel-head"><div><small>EVENT STREAM</small><h2>Operational activity</h2></div><button class="text-button" id="clear-events">CLEAR</button></div>
-            <div class="event-feed" id="event-feed"></div>
-          </article>
-
-          <article class="panel topology-panel">
-            <div class="panel-head"><div><small>LOGICAL MAP</small><h2>Node topology</h2></div><span class="badge quiet">LIVE</span></div>
-            <canvas id="topology-canvas" width="680" height="420"></canvas>
-            <div class="legend"><span><i class="red"></i>core</span><span><i></i>relay</span><span><i class="dim"></i>cold</span></div>
-          </article>
+          <article class="panel command-center"><div class="panel-head"><div><small>CONTROL PLANE</small><h2>Operator workspace</h2></div><span class="badge">NODE-07</span></div><div class="command-brief"><div><small>CURRENT STAGE</small><strong id="current-stage">INITIALIZATION</strong><p id="stage-copy">Boot the runtime and prepare the local module registry.</p></div><button data-tab="terminal">OPEN TERMINAL</button></div><div class="step-list" id="step-list"></div></article>
+          <article class="panel process-panel"><div class="panel-head"><div><small>PROCESS TABLE</small><h2>Runtime services</h2></div><span class="status-dot"></span></div><div class="process-table" id="process-table"></div></article>
+          <article class="panel feed-panel"><div class="panel-head"><div><small>EVENT STREAM</small><h2>Operational activity</h2></div><button class="text-button" id="clear-events">CLEAR</button></div><div class="event-feed" id="event-feed"></div></article>
+          <article class="panel topology-panel"><div class="panel-head"><div><small>LOGICAL MAP</small><h2>Node topology</h2></div><span class="badge quiet">LIVE</span></div><canvas id="topology-canvas" width="680" height="420"></canvas><div class="legend"><span><i class="red"></i>core</span><span><i></i>relay</span><span><i class="dim"></i>cold</span></div></article>
         </div>
       </section>
-
-      <section class="view" id="view-terminal">
-        <div class="terminal-layout">
-          <article class="terminal panel">
-            <div class="terminal-bar"><span>root@trmx / tty-07</span><b id="terminal-state">READY</b></div>
-            <div class="terminal-output" id="terminal-output"></div>
-            <form id="terminal-form"><label id="prompt">root@trmx:~#</label><input id="command-input" autocomplete="off" autocapitalize="none" spellcheck="false"><button>RUN</button></form>
-          </article>
-          <aside class="terminal-side">
-            <article class="panel compact"><div class="panel-head"><div><small>CONTEXT</small><h2>Session</h2></div></div><dl id="session-context"></dl></article>
-            <article class="panel compact"><div class="panel-head"><div><small>FILESYSTEM</small><h2>Working path</h2></div></div><div class="path" id="working-path">/home/operator</div><div class="file-list" id="file-list"></div></article>
-          </aside>
-        </div>
-      </section>
-
+      <section class="view" id="view-terminal"><div class="terminal-layout"><article class="terminal panel"><div class="terminal-bar"><span>root@trmx / tty-07</span><b id="terminal-state">READY</b></div><div class="terminal-output" id="terminal-output"></div><form id="terminal-form"><label id="prompt">root@trmx:~#</label><input id="command-input" autocomplete="off" autocapitalize="none" spellcheck="false"><button>RUN</button></form></article><aside class="terminal-side"><article class="panel compact"><div class="panel-head"><div><small>CONTEXT</small><h2>Session</h2></div></div><dl id="session-context"></dl></article><article class="panel compact"><div class="panel-head"><div><small>FILESYSTEM</small><h2>Working path</h2></div></div><div class="path" id="working-path">/home/operator</div><div class="file-list" id="file-list"></div></article></aside></div></section>
       <section class="view" id="view-intel">
         <div class="grid intel-grid">
           <article class="panel"><div class="panel-head"><div><small>EVIDENCE</small><h2>Collection queue</h2></div><span class="badge" id="evidence-count">0 ITEMS</span></div><div class="evidence-list" id="evidence-list"></div></article>
           <article class="panel"><div class="panel-head"><div><small>TIMELINE</small><h2>Investigation chain</h2></div><span class="badge quiet">LOCAL</span></div><div class="timeline" id="timeline"></div></article>
+          <article class="panel signal-console"><div class="panel-head"><div><small>SIGNAL INTELLIGENCE</small><h2>Phone metadata</h2></div><span class="badge quiet">PUBLIC META</span></div><div class="signal-form"><label>PHONE NUMBER<input id="phone-input" inputmode="tel" autocomplete="tel" placeholder="+62 812 0000 0000"></label><button id="phone-analyze">ANALYZE SIGNAL</button></div><div class="signal-result" id="phone-result"><div class="empty-state">Enter an international-format number to inspect numbering metadata.</div></div></article>
+          <article class="panel geo-console"><div class="panel-head"><div><small>CONSENT GEOLOCATION</small><h2>Device position</h2></div><span class="badge" id="geo-status">PERMISSION REQUIRED</span></div><div class="geo-map" id="geo-map"><div class="map-grid"></div><div class="map-sweep"></div><div class="map-reticle"><i></i><b></b></div><div class="map-label" id="map-label">NO POSITION FIX</div></div><div class="geo-controls"><button id="geo-capture">CAPTURE THIS DEVICE</button><button class="secondary" id="geo-clear">CLEAR FIX</button></div><div class="geo-readout" id="geo-readout"><div><small>LATITUDE</small><strong>—</strong></div><div><small>LONGITUDE</small><strong>—</strong></div><div><small>ACCURACY</small><strong>—</strong></div><div><small>TIMESTAMP</small><strong>—</strong></div></div></article>
           <article class="panel intel-detail"><div class="panel-head"><div><small>ANALYSIS</small><h2>Target intelligence</h2></div></div><div id="intel-detail" class="empty-state">No target intelligence has been collected.</div></article>
         </div>
       </section>
-
-      <section class="view" id="view-monitor">
-        <div class="grid monitor-grid">
-          <article class="panel traffic"><div class="panel-head"><div><small>TRAFFIC</small><h2>Packet telemetry</h2></div><span class="badge quiet">60 SEC</span></div><canvas id="traffic-canvas" width="1200" height="360"></canvas></article>
-          <article class="panel"><div class="panel-head"><div><small>RESOURCES</small><h2>System load</h2></div></div><div class="resource-list" id="resource-list"></div></article>
-          <article class="panel packet-panel"><div class="panel-head"><div><small>PACKET BUFFER</small><h2>Decoded frames</h2></div></div><div class="packet-table" id="packet-table"></div></article>
-        </div>
-      </section>
-
-      <section class="view" id="view-profile">
-        <article class="profile panel">
-          <div class="profile-cover"><div class="cover-code" id="cover-code"></div><div class="cover-mark">CX</div></div>
-          <div class="profile-main"><img src="./icon.svg" alt=""><div><small>OPERATOR PROFILE</small><h2>CYBERxDRMA</h2><p>@drmacze · Red Node / SEA-07</p></div><span class="badge">OMEGA-7</span></div>
-          <div class="profile-grid"><div><small>OPERATOR ID</small><strong>CX-DRM-077</strong></div><div><small>DIVISION</small><strong>RED NODE</strong></div><div><small>KEYPRINT</small><strong>7E:4A:9C:2F</strong></div><div><small>STATUS</small><strong>ACTIVE</strong></div></div>
-          <div class="profile-note">Controlled cyber-range operations, public-source intelligence, local evidence processing and interface engineering.</div>
-        </article>
-      </section>
+      <section class="view" id="view-monitor"><div class="grid monitor-grid"><article class="panel traffic"><div class="panel-head"><div><small>TRAFFIC</small><h2>Packet telemetry</h2></div><span class="badge quiet">60 SEC</span></div><canvas id="traffic-canvas" width="1200" height="360"></canvas></article><article class="panel"><div class="panel-head"><div><small>RESOURCES</small><h2>System load</h2></div></div><div class="resource-list" id="resource-list"></div></article><article class="panel packet-panel"><div class="panel-head"><div><small>PACKET BUFFER</small><h2>Decoded frames</h2></div></div><div class="packet-table" id="packet-table"></div></article></div></section>
+      <section class="view" id="view-profile"><article class="profile panel"><div class="profile-cover"><div class="cover-code" id="cover-code"></div><div class="cover-mark">CX</div></div><div class="profile-main"><img src="./icon.svg" alt=""><div><small>OPERATOR PROFILE</small><h2 class="shiny-name">CYBERxDRMA</h2><p>@drmacze · Red Node / SEA-07</p></div><span class="badge">OMEGA-7</span></div><div class="profile-grid"><div><small>OPERATOR ID</small><strong>CX-DRM-077</strong></div><div><small>DIVISION</small><strong>RED NODE</strong></div><div><small>KEYPRINT</small><strong>7E:4A:9C:2F</strong></div><div><small>STATUS</small><strong>ACTIVE</strong></div></div><div class="profile-note">Controlled cyber-range operations, public-source intelligence, local evidence processing and interface engineering.</div></article></section>
     </main>
   </div>
   <div class="toast" id="toast"></div>

@@ -2,18 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#050506">
-  <meta name="description" content="CYBERTRMX isolated cyber operations simulator.">
-  <title>CYBERTRMX // Operations Console</title>
-  <link rel="stylesheet" href="/styles.css">
-  <script src="/app.js" defer></script>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CYBERTRMX">
+  <meta name="description" content="CYBERTRMX red-node operations console.">
+  <title>CYBERTRMX // RED NODE</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
   <div class="scanline" aria-hidden="true"></div>
+  <div class="matrix" id="matrix" aria-hidden="true"></div>
+
   <div class="app-shell">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand-block">
         <div class="brand-mark"><span>C</span></div>
         <div>
@@ -30,21 +38,22 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="signal-row"><i></i><span>ISOLATED LAB</span></div>
-        <div class="micro-copy">AUTHORIZED SIMULATION ENVIRONMENT</div>
+        <div class="signal-row"><i></i><span>AUTHORIZED LAB</span></div>
+        <div class="micro-copy">NO LIVE CREDENTIAL ACCESS</div>
       </div>
     </aside>
 
     <main class="workspace">
       <header class="topbar">
+        <button class="menu-button" id="menu-button" aria-label="Open navigation">☰</button>
         <div>
-          <div class="eyebrow">CYBER OPERATIONS INTERFACE</div>
+          <div class="eyebrow">CYBERTRMX / OPERATOR CONSOLE</div>
           <h1 id="page-title">COMMAND OVERVIEW</h1>
         </div>
         <div class="topbar-right">
           <div class="clock" id="clock">00:00:00</div>
           <div class="operator-chip">
-            <img src="/assets/avatar.svg" alt="CYBERxDRMA avatar">
+            <img src="./icon.svg" alt="CYBERxDRMA avatar">
             <div><strong>CYBERxDRMA</strong><span>@drmacze</span></div>
           </div>
         </div>
@@ -52,101 +61,87 @@
 
       <section class="tab-panel active" id="tab-main">
         <div class="hero-grid">
-          <article class="hero-card panel">
-            <div class="panel-label">NODE STATUS</div>
+          <article class="panel hero-card">
+            <div class="panel-label">RED-NODE CONTROL PLANE</div>
             <div class="hero-copy">
-              <p class="kicker">PRIVATE CONTROL SURFACE</p>
-              <h2>Observe the signal.<br><em>Control the fiction.</em></h2>
-              <p>Encrypted visual telemetry, deterministic account modeling, and public-network metadata inside a contained operational shell.</p>
+              <p class="kicker">OPERATIONAL / ENCRYPTED / STATEFUL</p>
+              <h2>ENTER THE<br><em>RED CHANNEL.</em></h2>
+              <p>Initialize the runtime, stage packages, connect sources, create a session, set a target, and execute each operation through the command channel.</p>
             </div>
-            <div class="hero-terminal" aria-hidden="true">
-              <span>root@trmx:~$ initializing red-node</span>
-              <span>[OK] sandbox boundary verified</span>
-              <span>[OK] public metadata channel armed</span>
-              <span>[OK] simulation kernel synchronized</span>
-              <b>_</b>
-            </div>
-            <div class="orb" aria-hidden="true"><div></div><div></div><div></div></div>
+            <div class="hero-terminal" id="hero-terminal"></div>
+            <div class="orb"><div></div><div></div><div></div></div>
           </article>
 
-          <article class="identity-card panel">
+          <article class="panel identity-card">
             <div class="panel-label">ACTIVE OPERATOR</div>
-            <img class="identity-avatar" src="/assets/avatar.svg" alt="Cyber operator avatar">
+            <img class="identity-avatar" src="./icon.svg" alt="CYBERxDRMA avatar">
             <h3>CYBERxDRMA</h3>
-            <p>@drmacze</p>
-            <div class="clearance"><span>ACCESS</span><strong>LEVEL 07</strong></div>
-            <div class="identity-code">4F 50 45 52 41 54 4F 52</div>
+            <p>drmacze</p>
+            <div class="clearance"><span>CLEARANCE</span><strong>OMEGA-7</strong></div>
+            <div class="identity-code">CX-DRM-077 / SEA</div>
           </article>
         </div>
 
         <div class="metrics-grid">
-          <article class="metric panel"><span>ACTIVE NODES</span><strong id="nodes-count">27</strong><small>+4.8% / SESSION</small></article>
-          <article class="metric panel"><span>EVENT STREAM</span><strong id="event-count">1,204</strong><small>LIVE BUFFER</small></article>
-          <article class="metric panel"><span>TRACE LATENCY</span><strong id="latency-count">38ms</strong><small>EDGE CHANNEL</small></article>
-          <article class="metric panel"><span>THREAT INDEX</span><strong>LOW</strong><small>CONTAINMENT GREEN</small></article>
+          <article class="panel metric"><span>RUNTIME</span><strong id="metric-runtime">OFFLINE</strong><small id="metric-runtime-sub">BOOT REQUIRED</small></article>
+          <article class="panel metric"><span>PACKAGES</span><strong id="metric-packages">0/4</strong><small>LOCAL CACHE</small></article>
+          <article class="panel metric"><span>SESSION</span><strong id="metric-session">NONE</strong><small id="metric-session-sub">NO TARGET</small></article>
+          <article class="panel metric"><span>EVENTS</span><strong id="metric-events">0012</strong><small>ENCRYPTED LOG</small></article>
         </div>
 
         <div class="main-lower-grid">
           <article class="panel activity-panel">
-            <div class="panel-head"><div><span>LIVE ACTIVITY</span><small>NODE EVENT FEED</small></div><i></i></div>
+            <div class="panel-head"><div><span>OPERATION FEED</span><small>LOCAL SESSION EVENTS</small></div><i></i></div>
             <div class="activity-list" id="activity-list"></div>
           </article>
           <article class="panel topology-panel">
-            <div class="panel-head"><div><span>SIGNAL TOPOLOGY</span><small>SIMULATED ROUTE GRAPH</small></div><i></i></div>
-            <div class="topology" aria-hidden="true">
-              <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
-              <span class="node n1"></span><span class="node n2"></span><span class="node n3"></span><span class="node n4"></span><span class="node n5"></span>
-              <span class="beam b1"></span><span class="beam b2"></span><span class="beam b3"></span>
+            <div class="panel-head"><div><span>NODE TOPOLOGY</span><small>LOGICAL ROUTING MAP</small></div><i></i></div>
+            <div class="topology">
+              <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
               <div class="core">TRMX<br><small>CORE</small></div>
+              <b class="node n1"></b><b class="node n2"></b><b class="node n3"></b><b class="node n4"></b><b class="node n5"></b>
+              <span class="beam b1"></span><span class="beam b2"></span><span class="beam b3"></span>
             </div>
           </article>
         </div>
       </section>
 
       <section class="tab-panel" id="tab-cmd">
-        <article class="terminal-panel panel">
+        <article class="panel terminal-panel">
           <div class="terminal-top">
-            <div><span class="dot red"></span><span class="dot dim"></span><span class="dot dim"></span></div>
-            <strong>CYBERTRMX SECURE COMMAND CHANNEL</strong>
-            <span id="terminal-state">READY</span>
+            <div><span class="dot red"></span><span class="dot"></span><span class="dot"></span></div>
+            <strong>TRMX SECURE SHELL / TTY-07</strong>
+            <span id="terminal-state">LOCKED</span>
           </div>
-          <div class="terminal-output" id="terminal-output" aria-live="polite">
-            <div class="line system">CYBERTRMX KERNEL 1.0.0</div>
-            <div class="line muted">Session boundary verified. Command channel is ready.</div>
-          </div>
+          <div class="terminal-output" id="terminal-output" aria-live="polite"></div>
           <form class="terminal-form" id="terminal-form" autocomplete="off">
-            <label for="command-input">root@trmx:~$</label>
-            <input id="command-input" name="command" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Command input">
+            <label for="command-input">root@trmx:~#</label>
+            <input id="command-input" name="command" spellcheck="false" autocapitalize="none" autocomplete="off" aria-label="Command input">
             <button type="submit">EXECUTE</button>
           </form>
         </article>
       </section>
 
       <section class="tab-panel" id="tab-profile">
-        <article class="profile-card panel">
+        <article class="panel profile-card">
           <div class="profile-banner">
-            <div class="code-rain" aria-hidden="true">
-              <span>01001001</span><span>ACCESS_NODE</span><span>0x7F3A</span><span>CYBERTRMX</span><span>const signal = true;</span><span>10110110</span>
+            <div class="banner-grid"></div>
+            <div class="code-rain" id="code-rain"></div>
+            <div class="banner-emblem">CX</div>
+          </div>
+          <div class="profile-content">
+            <img class="profile-avatar" src="./icon.svg" alt="CYBERxDRMA avatar">
+            <div class="profile-title">
+              <div><h2>CYBERxDRMA</h2><p>@drmacze · Red Node Operator</p></div>
+              <div class="profile-status"><i></i> ONLINE</div>
             </div>
-            <div class="banner-glitch">CYBERTRMX</div>
-          </div>
-          <div class="profile-body">
-            <img class="profile-avatar" src="/assets/avatar.svg" alt="CYBERxDRMA avatar">
-            <div class="profile-identity">
-              <div class="verified-line"><h2>CYBERxDRMA</h2><span>VERIFIED OPERATOR</span></div>
-              <p>@drmacze</p>
-              <div class="profile-tags"><span>RED TEAM VISUALS</span><span>SIMULATION ARCHITECT</span><span>NODE 07</span></div>
+            <div class="profile-stats">
+              <div><span>OPERATOR ID</span><strong>CX-DRM-077</strong></div>
+              <div><span>DIVISION</span><strong>RED NODE</strong></div>
+              <div><span>REGION</span><strong>SEA / 07</strong></div>
+              <div><span>KEYPRINT</span><strong>7E:4A:9C:2F</strong></div>
             </div>
-            <div class="profile-status"><i></i> ONLINE</div>
-          </div>
-          <div class="profile-stats">
-            <div><span>SESSION RUNS</span><strong>1,337</strong></div>
-            <div><span>SIMULATION SCORE</span><strong>98.4</strong></div>
-            <div><span>PUBLIC LOOKUPS</span><strong>421</strong></div>
-            <div><span>CLEARANCE</span><strong>07</strong></div>
-          </div>
-          <div class="profile-console">
-            <span>operator.signature</span><strong>“Silence in the wire. Precision in the signal.”</strong>
+            <div class="profile-bio">Focused on controlled cyber-range workflows, public-source intelligence, deterministic target modeling, and red-team interface systems.</div>
           </div>
         </article>
       </section>
@@ -154,26 +149,22 @@
       <section class="tab-panel" id="tab-monitor">
         <div class="monitor-grid">
           <article class="panel chart-panel">
-            <div class="panel-head"><div><span>NETWORK PULSE</span><small>60 SECOND WINDOW</small></div><i></i></div>
-            <canvas id="pulse-canvas" width="1000" height="360" aria-label="Animated network pulse chart"></canvas>
+            <div class="panel-head"><div><span>NETWORK PULSE</span><small>SESSION THROUGHPUT</small></div><i></i></div>
+            <canvas id="pulse-canvas" width="1100" height="360"></canvas>
           </article>
           <article class="panel system-panel">
-            <div class="panel-head"><div><span>SYSTEM VITALS</span><small>LOCAL RUNTIME</small></div><i></i></div>
-            <div class="vital"><div><span>SIMULATION KERNEL</span><b>96%</b></div><i><em style="--value:96%"></em></i></div>
-            <div class="vital"><div><span>PUBLIC DATA CHANNEL</span><b>82%</b></div><i><em style="--value:82%"></em></i></div>
-            <div class="vital"><div><span>EVENT BUFFER</span><b>73%</b></div><i><em style="--value:73%"></em></i></div>
-            <div class="vital"><div><span>CONTAINMENT</span><b>100%</b></div><i><em style="--value:100%"></em></i></div>
+            <div class="panel-head"><div><span>RESOURCE LOAD</span><small>LOCAL RUNTIME</small></div><i></i></div>
+            <div class="resource-list" id="resource-list"></div>
+          </article>
+          <article class="panel log-panel">
+            <div class="panel-head"><div><span>ENCRYPTED EVENT LOG</span><small>APPEND-ONLY BUFFER</small></div><button id="clear-log">PURGE</button></div>
+            <div class="log-table" id="log-table"></div>
           </article>
         </div>
-        <article class="panel log-panel">
-          <div class="panel-head"><div><span>OPERATION LOG</span><small>LOCAL SESSION RECORD</small></div><button id="clear-logs">PURGE VIEW</button></div>
-          <div class="log-table">
-            <div class="log-row log-header"><span>TIME</span><span>CHANNEL</span><span>EVENT</span><span>STATE</span></div>
-            <div id="monitor-logs"></div>
-          </div>
-        </article>
       </section>
     </main>
   </div>
+
+  <div class="toast" id="toast" role="status"></div>
 </body>
 </html>

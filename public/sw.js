@@ -1,5 +1,5 @@
-const CACHE = 'cybertrmx-v18';
-const ASSETS = ['./', './index.html', './styles.css', './intel.css', './intel-workspace.css', './mobile.css', './refine.css', './landing.css', './profile.css', './system-upgrade.css', './tracker-engine.css', './app.js', './intel.js', './intel-workspace.js', './guide.js', './profile.js', './system-upgrade.js', './tracker-engine.js', './motion.js', './checkin.html', './checkin.css', './checkin.js', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'cybertrmx-v19';
+const ASSETS = ['./', './index.html', './styles.css', './intel.css', './intel-workspace.css', './mobile.css', './refine.css', './landing.css', './profile.css', './system-upgrade.css', './tracker-v2.css', './app.js', './intel.js', './intel-workspace.js', './guide.js', './profile.js', './system-upgrade.js', './tracker-v2.js', './patch-page.js', './terminal-v3.js', './motion.js', './checkin.html', './checkin.css', './checkin.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (event) => {

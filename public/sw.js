@@ -1,4 +1,4 @@
-const CACHE = 'cybertrmx-v12';
+const CACHE = 'cybertrmx-v13';
 const ASSETS = ['./', './index.html', './styles.css', './intel.css', './intel-workspace.css', './mobile.css', './refine.css', './landing.css', './profile.css', './app.js', './intel.js', './intel-workspace.js', './guide.js', './profile.js', './motion.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));

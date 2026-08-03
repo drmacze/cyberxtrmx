@@ -1,0 +1,13 @@
+{
+  "name": "CYBERTRMX Red Node",
+  "short_name": "CYBERTRMX",
+  "description": "CYBERTRMX red-node operations console.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#040405",
+  "theme_color": "#050506",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

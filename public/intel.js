@@ -1,0 +1,34 @@
+(()=>{
+const dialPlans=[
+  {code:'+62',country:'Indonesia',region:'ID / SEA',tz:'UTC+7–UTC+9',format:'+62 XXX-XXXX-XXXX'},
+  {code:'+60',country:'Malaysia',region:'MY / SEA',tz:'UTC+8',format:'+60 XX-XXXX-XXXX'},
+  {code:'+65',country:'Singapore',region:'SG / SEA',tz:'UTC+8',format:'+65 XXXX-XXXX'},
+  {code:'+63',country:'Philippines',region:'PH / SEA',tz:'UTC+8',format:'+63 XXX-XXX-XXXX'},
+  {code:'+66',country:'Thailand',region:'TH / SEA',tz:'UTC+7',format:'+66 XX-XXX-XXXX'},
+  {code:'+1',country:'North America',region:'NANP',tz:'MULTI-ZONE',format:'+1 XXX-XXX-XXXX'},
+  {code:'+44',country:'United Kingdom',region:'GB / EUR',tz:'UTC+0–UTC+1',format:'+44 XXXX-XXXXXX'},
+  {code:'+81',country:'Japan',region:'JP / APAC',tz:'UTC+9',format:'+81 XX-XXXX-XXXX'},
+  {code:'+82',country:'South Korea',region:'KR / APAC',tz:'UTC+9',format:'+82 XX-XXXX-XXXX'},
+  {code:'+91',country:'India',region:'IN / APAC',tz:'UTC+5:30',format:'+91 XXXXX-XXXXX'}
+];
+function normalizePhone(value){const raw=String(value||'').trim();const plus=raw.startsWith('+');const digits=raw.replace(/\D/g,'').slice(0,16);return plus?`+${digits}`:digits.startsWith('0')?`+62${digits.slice(1)}`:`+${digits}`}
+function phonePlan(number){return dialPlans.sort((a,b)=>b.code.length-a.code.length).find(x=>number.startsWith(x.code))||{code:number.slice(0,3),country:'Unknown numbering zone',region:'UNRESOLVED',tz:'UNKNOWN',format:'E.164 required'}}
+function maskPhone(number){if(number.length<7)return number;return `${number.slice(0,4)} ${'•'.repeat(Math.max(4,number.length-8))} ${number.slice(-4)}`}
+function analyzePhone(value,emit=true){const number=normalizePhone(value);if(!/^\+\d{7,16}$/.test(number)){if(emit)window.toast?.('Enter a valid international number');return null}const plan=phonePlan(number);const seed=window.hash?window.hash(number):number.split('').reduce((a,c)=>a+c.charCodeAt(0),0);const lineType=Number(number.slice(-1))%4===0?'FIXED / VOIP':'MOBILE RANGE';const portability=seed%3===0?'PORTABILITY POSSIBLE':'NATIVE RANGE';const confidence=74+(seed%22);const result={number,plan,lineType,portability,confidence};const out=document.querySelector('#phone-result');if(out)out.innerHTML=`<div class="signal-matrix"><div><small>SUBSCRIBER</small><strong>${maskPhone(number)}</strong></div><div><small>NUMBERING ZONE</small><strong>${plan.country}</strong></div><div><small>REGION</small><strong>${plan.region}</strong></div><div><small>TIME STANDARD</small><strong>${plan.tz}</strong></div><div><small>LINE CLASS</small><strong>${lineType}</strong></div><div><small>RANGE STATUS</small><strong>${portability}</strong></div><div><small>FORMAT MODEL</small><strong>${plan.format}</strong></div><div><small>PLAN CONFIDENCE</small><strong>${confidence}%</strong></div></div><div class="signal-foot">Numbering-plan intelligence only. A phone number does not expose live GPS position, device identity, or private subscriber records.</div>`;
+if(emit&&window.state){window.state.evidence.push({type:'PHONE-META',name:`phone-${Date.now()}.json`,time:window.now()});window.log('SIGINT',`Numbering metadata resolved for ${maskPhone(number)}`,'READY')}
+return result}
+function renderGeo(position){const {latitude,longitude,accuracy,heading}=position.coords;const time=new Date(position.timestamp).toLocaleTimeString('en-GB',{hour12:false});const map=document.querySelector('#geo-map');map?.classList.add('fixed');document.querySelector('#geo-status').textContent='POSITION FIX';document.querySelector('#map-label').textContent=`FIX ${latitude.toFixed(5)}, ${longitude.toFixed(5)} / ±${Math.round(accuracy)}m`;
+const values=[latitude.toFixed(6),longitude.toFixed(6),`±${Math.round(accuracy)} m`,time];document.querySelectorAll('#geo-readout strong').forEach((el,i)=>el.textContent=values[i]);if(map){const x=((longitude+180)%360)/360*70+15;const y=(1-(latitude+90)/180)*60+20;const ret=map.querySelector('.map-reticle');ret.style.left=`${Math.max(12,Math.min(88,x))}%`;ret.style.top=`${Math.max(15,Math.min(85,y))}%`}
+if(window.state){window.state.evidence.push({type:'CONSENT-GEO',name:`position-${Date.now()}.geo`,time:window.now()});window.log('GEO',`Consented device position captured ±${Math.round(accuracy)}m`,'FIXED')}
+}
+function captureGeo(){if(!navigator.geolocation){window.toast?.('Geolocation is unavailable');return}document.querySelector('#geo-status').textContent='ACQUIRING';document.querySelector('#map-label').textContent='REQUESTING DEVICE PERMISSION';navigator.geolocation.getCurrentPosition(renderGeo,err=>{document.querySelector('#geo-status').textContent='NO FIX';document.querySelector('#map-label').textContent=err.code===1?'PERMISSION DENIED':'POSITION UNAVAILABLE';window.toast?.(err.code===1?'Location permission was denied':'Unable to acquire position')},{enableHighAccuracy:true,timeout:12000,maximumAge:0})}
+function clearGeo(){document.querySelector('#geo-map')?.classList.remove('fixed');document.querySelector('#geo-status').textContent='PERMISSION REQUIRED';document.querySelector('#map-label').textContent='NO POSITION FIX';document.querySelectorAll('#geo-readout strong').forEach(el=>el.textContent='—');const ret=document.querySelector('.map-reticle');if(ret){ret.style.left='50%';ret.style.top='50%'}}
+window.addEventListener('DOMContentLoaded',()=>{
+  document.querySelector('#phone-analyze')?.addEventListener('click',()=>analyzePhone(document.querySelector('#phone-input').value));
+  document.querySelector('#phone-input')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();analyzePhone(e.target.value)}});
+  document.querySelector('#geo-capture')?.addEventListener('click',captureGeo);
+  document.querySelector('#geo-clear')?.addEventListener('click',clearGeo);
+});
+const coreExecute=window.execute;
+window.execute=async function(raw){const a=raw.trim().split(/\s+/),cmd=(a[0]||'').toLowerCase();if(cmd==='phone'&&a[1]==='inspect'){const value=a.slice(2).join(' ');window.line(`root@trmx:${window.state.cwd.replace('/home/operator','~')}# ${raw}`,'command');const result=analyzePhone(value,false);if(!result){window.line('usage: phone inspect <international-number>','warn');return}await window.progress('resolving numbering plan',6);window.line(JSON.stringify({subscriber:maskPhone(result.number),country:result.plan.country,region:result.plan.region,timezone:result.plan.tz,lineClass:result.lineType,portability:result.portability,confidence:`${result.confidence}%`},null,2),'block');window.state.evidence.push({type:'PHONE-META',name:`phone-${Date.now()}.json`,time:window.now()});window.log('SIGINT','Phone numbering metadata resolved','READY');return}if(cmd==='geo'&&a[1]==='capture'){window.line(`root@trmx:${window.state.cwd.replace('/home/operator','~')}# ${raw}`,'command');window.line('Browser permission prompt required. Use Intel → Device position to continue.','warn');window.switchTab?.('intel');return}return coreExecute(raw)};
+})();

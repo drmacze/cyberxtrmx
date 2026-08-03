@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">CYBERxDRMA cyber operator avatar</title>
+  <desc id="desc">A red and black geometric masked cyber operator emblem.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="68%"><stop offset="0" stop-color="#3b0509"/><stop offset=".58" stop-color="#100205"/><stop offset="1" stop-color="#020203"/></radialGradient>
+    <linearGradient id="red" x1="0" x2="1"><stop stop-color="#ff1834"/><stop offset="1" stop-color="#7b0012"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="512" height="512" rx="92" fill="url(#bg)"/>
+  <g opacity=".18" stroke="#ff1635" stroke-width="2">
+    <path d="M0 96h512M0 160h512M0 224h512M0 288h512M0 352h512M0 416h512"/>
+    <path d="M96 0v512M160 0v512M224 0v512M288 0v512M352 0v512M416 0v512"/>
+  </g>
+  <circle cx="256" cy="254" r="170" fill="none" stroke="#ff1635" stroke-width="3" opacity=".42"/>
+  <circle cx="256" cy="254" r="194" fill="none" stroke="#ff1635" stroke-width="1" opacity=".18" stroke-dasharray="10 17"/>
+  <path d="M161 169 256 108l95 61-20 174-75 63-75-63z" fill="#060608" stroke="url(#red)" stroke-width="8" filter="url(#glow)"/>
+  <path d="M182 201 256 155l74 46-14 118-60 45-60-45z" fill="#110207" stroke="#7f0718" stroke-width="3"/>
+  <path d="m190 232 55 14-31 28-36-12zm132 0-55 14 31 28 36-12z" fill="#ff1834" filter="url(#glow)"/>
+  <path d="m221 312 35 18 35-18-14 42h-42z" fill="#2a0208" stroke="#ff1834" stroke-width="3"/>
+  <path d="M256 155v209" stroke="#ff1834" stroke-width="2" opacity=".3"/>
+  <g fill="#ff1834" font-family="monospace" font-size="14" opacity=".7">
+    <text x="56" y="84">0x07</text><text x="388" y="438">TRMX</text><text x="57" y="442">ROOT</text><text x="385" y="84">NODE</text>
+  </g>
+</svg>

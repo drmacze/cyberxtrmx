@@ -29,6 +29,9 @@ jobs:
             node --check "$file"
           done < <(find public -type f -name '*.js' -print0)
 
+      - name: Run security tests
+        run: npm test
+
       - name: Check required PWA assets
         shell: bash
         run: |
@@ -42,8 +45,26 @@ jobs:
           missing = [asset for asset in assets if asset and not (Path('public') / asset).exists()]
           if missing:
               raise SystemExit('Missing cached assets: ' + ', '.join(missing))
+          required = {'security-utils.js', 'security-v52.js', 'security-v52.css', 'command-hints-v52.js'}
+          absent = sorted(required.difference(assets))
+          if absent:
+              raise SystemExit('5.2 security assets are not cached: ' + ', '.join(absent))
           print(f'Validated {len(assets)} cached assets.')
           PY
+
+      - name: Check security contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "x-device-id" public/security-v52.js
+          grep -q "x-idempotency-key" public/security-v52.js
+          grep -q "x-submission-key" public/checkin.js
+          grep -q "Credentials are only accepted in the protected account form" public/security-v52.js
+          if grep -q "auth create <email> <password>" public/command-hints-v52.js; then
+            echo 'Credential-bearing terminal clue found.'
+            exit 1
+          fi
+          echo 'Security contract check passed.'
 
       - name: Check product copy
         shell: bash

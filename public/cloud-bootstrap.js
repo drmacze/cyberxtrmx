@@ -4,12 +4,14 @@ const load=(src,id)=>new Promise((resolve,reject)=>{const existing=document.quer
 async function boot(){
  addStyle('./cloud-core.css','cybertrmx-cloud-style');
  addStyle('./security-v52.css','cybertrmx-security-style');
+ addStyle('./jobs-v53.css','cybertrmx-jobs-style');
  try{
   await load('./backend-config.js','cybertrmx-backend-config');
   if(!window.supabase)await load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.54.0/dist/umd/supabase.min.js','cybertrmx-supabase-client');
   await load('./auth-redirect-fix.js','cybertrmx-auth-redirect-fix');
   await load('./security-utils.js','cybertrmx-security-utils');
   await load('./security-v52.js','cybertrmx-security-v52');
+  await load('./jobs-v53.js','cybertrmx-jobs-v53');
   await load('./cloud-core.js','cybertrmx-cloud-core');
  }catch(error){console.error('CYBERTRMX backend bootstrap failed',error)}
 }

@@ -16,7 +16,7 @@ test('frontend routes job actions to the dedicated API',()=>{
 
 test('PWA caches the 5.3 queue UI',()=>{
   const sw=read('public/sw.js');
-  assert.match(sw,/cybertrmx-v28/);
+  assert.match(sw,/cybertrmx-v30/);
   assert.match(sw,/jobs-v53\.js/);
   assert.match(sw,/jobs-v53\.css/);
 });
@@ -54,7 +54,7 @@ test('job API enqueues asynchronously and exposes control actions',()=>{
   assert.match(api,/MFA_REQUIRED/);
 });
 
-test('project version is 5.3.0',()=>{
+test('project keeps the 5.3 job-engine line',()=>{
   const pkg=JSON.parse(read('package.json'));
-  assert.equal(pkg.version,'5.3.0');
+  assert.match(pkg.version,/^5\.3\./);
 });

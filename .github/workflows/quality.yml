@@ -32,7 +32,7 @@ jobs:
       - name: Run security and job tests
         run: npm test
 
-      - name: Check required PWA assets
+      - name: Check compact PWA shell
         shell: bash
         run: |
           set -euo pipefail
@@ -41,22 +41,40 @@ jobs:
           import re
 
           sw = Path('public/sw.js').read_text(encoding='utf-8')
-          assets = re.findall(r"'\./([^']+)'", sw)
+          shell_match = re.search(r'const SHELL = \[(.*?)\];', sw, re.S)
+          if not shell_match:
+              raise SystemExit('PWA shell list is missing.')
+          assets = re.findall(r"'\./([^']+)'", shell_match.group(1))
           missing = [asset for asset in assets if asset and not (Path('public') / asset).exists()]
           if missing:
-              raise SystemExit('Missing cached assets: ' + ', '.join(missing))
-          required = {
-              'security-utils.js', 'device-v531.js', 'security-v52.js',
-              'security-v52.css', 'command-hints-v52.js', 'jobs-v53.js',
-              'jobs-v53.css'
-          }
+              raise SystemExit('Missing shell assets: ' + ', '.join(missing))
+          if len(assets) > 12:
+              raise SystemExit(f'Startup shell is too large: {len(assets)} assets')
+          required = {'index.html','styles.css','mobile.css','landing.css','mobile-performance-v533.css','app.js','motion.js'}
           absent = sorted(required.difference(assets))
           if absent:
-              raise SystemExit('Required security or queue assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v29' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.3.1 cache.')
-          print(f'Validated {len(assets)} cached assets.')
+              raise SystemExit('Required startup assets are missing: ' + ', '.join(absent))
+          if 'cybertrmx-v31' not in sw:
+              raise SystemExit('The active PWA cache is not the 5.3.3 cache.')
+          print(f'Validated compact shell with {len(assets)} assets.')
           PY
+
+      - name: Check startup performance contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -qE 'gsap\.min\.js|ScrollTrigger\.min\.js|lenis\.min\.js' public/index.html; then
+            echo 'External motion libraries must not block index startup.'
+            exit 1
+          fi
+          grep -q 'app.js?v=5.3.3' public/index.html
+          grep -q 'motion.js?v=5.3.3' public/index.html
+          grep -q 'touch-shell' public/motion.js
+          grep -q 'scheduleFeatureModules' public/motion.js
+          grep -q 'loadDesktopMotion' public/motion.js
+          grep -q 'scrollRestoration' public/motion.js
+          grep -q 'ignoreSearch: true' public/sw.js
+          echo 'Startup performance contract passed.'
 
       - name: Check security contracts
         shell: bash
@@ -67,6 +85,7 @@ jobs:
           grep -q "x-device-id" public/device-v531.js
           grep -q "DEVICE_ID_REQUIRED" public/device-v531.js
           grep -q "device-v531.js" public/cloud-bootstrap.js
+          grep -q "jobs-v53.js" public/cloud-bootstrap.js
           grep -q "x-submission-key" public/checkin.js
           grep -q "Credentials are only accepted in the protected account form" public/security-v52.js
           if grep -q "auth create <email> <password>" public/command-hints-v52.js; then

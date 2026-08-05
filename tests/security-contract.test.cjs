@@ -8,7 +8,7 @@ test('PWA caches every 5.2 security asset',()=>{
   for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js']){
     assert.match(sw,new RegExp(asset.replace('.','\\.')));
   }
-  assert.match(sw,/cybertrmx-v34/);
+  assert.match(sw,/cybertrmx-v35/);
 });
 
 test('security layer adds device and idempotency headers',()=>{

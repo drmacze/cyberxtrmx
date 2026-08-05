@@ -5,6 +5,7 @@ const nativeFetch=window.fetch.bind(window);
 const inFlight=new Map();
 const CLIENT_VERSION='5.2.3';
 const FUNCTION_PATH='/functions/v1/';
+const READ_ACTIONS=new Set(['dashboard','security_status','job_status']);
 
 if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout!=='function'){
   AbortSignal.timeout=milliseconds=>{
@@ -15,10 +16,13 @@ if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout!=='function'){
 }
 
 function ascii(value){
-  return String(value??'').normalize?.('NFKD').replace(/[^\x20-\x7E]/g,' ').replace(/\s+/g,' ').trim()||String(value??'').replace(/[^\x20-\x7E]/g,' ').trim();
+  const text=String(value??'');
+  const normalized=typeof text.normalize==='function'?text.normalize('NFKD'):text;
+  return normalized.replace(/[^\x20-\x7E]/g,' ').replace(/\s+/g,' ').trim();
 }
 function urlOf(input){return typeof input==='string'?input:input?.url||String(input)}
 function functionName(url){const index=url.indexOf(FUNCTION_PATH);if(index<0)return'';return decodeURIComponent(url.slice(index+FUNCTION_PATH.length).split(/[?#/]/)[0]||'')}
+function actionOf(body){try{return String(JSON.parse(String(body||'{}')).action||'')}catch{return''}}
 function normalizeHeaders(source,name){
   const headers=new Headers(source||{});
   for(const [key,value] of [...headers.entries()])headers.set(key,ascii(value));
@@ -36,7 +40,8 @@ function normalizeHeaders(source,name){
 function keyFor(url,init,headers){
   const authorization=headers.get('authorization')||'';
   const device=headers.get('x-device-id')||'';
-  const idempotency=headers.get('x-idempotency-key')||'';
+  const action=actionOf(init.body);
+  const idempotency=READ_ACTIONS.has(action)?'shared-read':headers.get('x-idempotency-key')||'';
   return [url,init.method||'GET',authorization.slice(-32),device,idempotency,String(init.body||'')].join('|');
 }
 async function snapshot(response){

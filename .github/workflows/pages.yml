@@ -2,7 +2,7 @@ name: Deploy CYBERTRMX to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 permissions:
@@ -21,8 +21,44 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout production
         uses: actions/checkout@v6
+        with:
+          ref: main
+          path: source-main
+
+      - name: Checkout staging
+        uses: actions/checkout@v6
+        with:
+          ref: staging
+          path: source-staging
+
+      - name: Build production and staging site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/staging
+          cp -a source-main/public/. site/
+          cp -a source-staging/public/. site/staging/
+          python - <<'PY'
+          from pathlib import Path
+
+          index = Path('site/staging/index.html')
+          html = index.read_text(encoding='utf-8')
+          if 'name="robots"' not in html:
+              html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">', 1)
+          marker = '<script src="./staging-marker.js"></script>'
+          if marker not in html:
+              html = html.replace('</body>', f'{marker}\n</body>')
+          index.write_text(html, encoding='utf-8')
+
+          sw = Path('site/staging/sw.js')
+          source = sw.read_text(encoding='utf-8')
+          source = source.replace("const CACHE = 'cybertrmx-", "const CACHE = 'cybertrmx-staging-")
+          source = source.replace("const CACHE_NAMESPACE = 'cybertrmx-v'", "const CACHE_NAMESPACE = 'cybertrmx-staging-v'")
+          sw.write_text(source, encoding='utf-8')
+          PY
+          touch site/.nojekyll
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
@@ -30,7 +66,7 @@ jobs:
       - name: Upload static site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: public
+          path: site
 
       - name: Deploy
         id: deployment

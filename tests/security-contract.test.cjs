@@ -3,12 +3,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const read=path=>fs.readFileSync(path,'utf8');
 
-test('PWA caches every active 5.2.8 security and guard asset',()=>{
+test('PWA caches every active security, guard, and staging queue asset',()=>{
   const sw=read('public/sw.js');
-  for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html']){
+  for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html','jobs-r2.js','jobs-r2.css']){
     assert.match(sw,new RegExp(asset.replaceAll('.','\\.')));
   }
-  assert.match(sw,/cybertrmx-v42/);
+  assert.match(sw,/cybertrmx-v43-r2/);
   assert.match(sw,/CACHE_NAMESPACE = 'cybertrmx-v'/);
 });
 
@@ -20,17 +20,19 @@ test('security layer adds device and idempotency headers',()=>{
   assert.match(source,/instance\.channel=noRealtimeChannel/);
 });
 
-test('Production Guard loads independently before connected backend modules',()=>{
+test('Production Guard and stable Operations load before the staging queue',()=>{
   const bootstrap=read('public/cloud-bootstrap.js');
   const guardIndex=bootstrap.indexOf("guard-v528.js");
   const backendIndex=bootstrap.indexOf("backend-config.js");
   const securityIndex=bootstrap.indexOf("security-v52.js");
   const coreIndex=bootstrap.indexOf("cloud-core.js");
+  const jobsIndex=bootstrap.indexOf("jobs-r2.js");
   assert.ok(guardIndex>=0,'Production Guard is not loaded');
   assert.ok(guardIndex<backendIndex,'Production Guard must load before backend configuration');
   assert.ok(backendIndex<securityIndex,'backend configuration must load before security client');
   assert.ok(securityIndex<coreIndex,'security client must load before Operations core');
-  assert.doesNotMatch(bootstrap,/transport-v523|patch-click-v525/);
+  assert.ok(coreIndex<jobsIndex,'staging jobs must load after the stable Operations core');
+  assert.doesNotMatch(bootstrap,/transport-v523|patch-click-v525|jobs-v53/);
 });
 
 test('active recovery path supplies device identity, inline locations, and request diagnostics',()=>{

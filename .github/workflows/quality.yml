@@ -49,9 +49,11 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
+          import json
           import re
 
           sw = Path('public/sw.js').read_text(encoding='utf-8')
+          version = json.loads(Path('package.json').read_text(encoding='utf-8'))['version']
           assets = re.findall(r"'\./([^']+)'", sw)
           missing = [asset for asset in assets if asset and not (Path('public') / asset).exists()]
           if missing:
@@ -61,17 +63,20 @@ jobs:
               'command-hints-v52.js', 'tracker-engine.js', 'tracker-engine.css',
               'recovery-527.js', 'guard-v528.js', 'guard-v528.css', 'recover.html'
           }
+          if version == '5.3.0-r2':
+              required.update({'jobs-r2.js', 'jobs-r2.css'})
           absent = sorted(required.difference(assets))
           if absent:
-              raise SystemExit('5.2.8 guard assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v42' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.2.8 guarded cache.')
+              raise SystemExit('Required guarded assets are not cached: ' + ', '.join(absent))
+          expected_cache = 'cybertrmx-v43-r2' if version == '5.3.0-r2' else 'cybertrmx-v42'
+          if expected_cache not in sw:
+              raise SystemExit(f'The active PWA cache is not {expected_cache}.')
           if "CACHE_NAMESPACE = 'cybertrmx-v'" not in sw:
               raise SystemExit('Production cache namespace is not isolated.')
-          print(f'Validated {len(assets)} cached assets.')
+          print(f'Validated {len(assets)} cached assets for {version}.')
           PY
 
-      - name: Check active recovery path
+      - name: Check active recovery and staging queue paths
         shell: bash
         run: |
           set -euo pipefail
@@ -80,11 +85,20 @@ jobs:
           grep -q "lastRequestId" public/recovery-527.js
           grep -q "dashboardLocations" public/recovery-527.js
           grep -q "CLEAN RELOAD" public/guard-v528.js
-          if grep -qE "transport-v523|patch-click-v525" public/cloud-bootstrap.js; then
+          if grep -qE "transport-v523|patch-click-v525|jobs-v53" public/cloud-bootstrap.js; then
             echo 'Withdrawn loader is still active in connected bootstrap.'
             exit 1
           fi
-          echo 'Production Guard recovery path passed.'
+          if [ "$(node -p "require('./package.json').version")" = "5.3.0-r2" ]; then
+            grep -q "jobs-r2.js" public/cloud-bootstrap.js
+            grep -q "jobsFunction: 'cybertrmx-jobs'" public/backend-config.js
+            grep -q "Failure of this panel never changes the Operations runtime status" public/jobs-r2.js
+            if grep -qE "window\.fetch\s*=|supabase\.createClient\s*=|functions\.invoke\s*=" public/jobs-r2.js; then
+              echo 'Staging jobs replaces a protected global transport.'
+              exit 1
+            fi
+          fi
+          echo 'Guarded recovery and staging queue paths passed.'
 
       - name: Check security contracts
         shell: bash

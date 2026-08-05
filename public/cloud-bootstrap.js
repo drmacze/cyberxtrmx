@@ -9,6 +9,7 @@ async function boot(){
   if(!window.supabase)await load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.54.0/dist/umd/supabase.min.js','cybertrmx-supabase-client');
   await load('./auth-redirect-fix.js','cybertrmx-auth-redirect-fix');
   await load('./security-utils.js','cybertrmx-security-utils');
+  await load('./transport-v523.js','cybertrmx-transport-v523');
   await load('./security-v52.js','cybertrmx-security-v52');
   await load('./cloud-core.js','cybertrmx-cloud-core');
  }catch(error){console.error('CYBERTRMX backend bootstrap failed',error)}

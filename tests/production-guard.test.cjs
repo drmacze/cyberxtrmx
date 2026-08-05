@@ -13,7 +13,7 @@ test('staging candidate and production baseline versions are explicit',()=>{
   assert.match(read('public/patch-page.js'),/CURRENT BUILD \/ 5\.3\.0-r2/);
   assert.match(read('public/staging-marker.js'),/STAGING \/ 5\.3\.0-r2/);
   assert.match(read('public/recovery-527.js'),/const VERSION='5\.2\.8'/);
-  assert.match(read('public/recover.html'),/CYBERTRMX 5\.2\.8/);
+  assert.match(read('public/recover.html'),/CYBERTRMX 5\.3\.0-r2/);
 });
 
 test('frontend lock points at the user-verified production baseline',()=>{
@@ -24,14 +24,15 @@ test('frontend lock points at the user-verified production baseline',()=>{
   ]);
 });
 
-test('System Guard exposes diagnostics and controlled recovery',()=>{
+test('System Guard exposes diagnostics and staging-only recovery',()=>{
   const guard=read('public/guard-v528.js');
   for(const marker of ['Service worker','Device ID','Request ID','Backend','CLEAN RELOAD','OPEN STAGING','guard status','guard recover'])assert.match(guard,new RegExp(marker));
   assert.match(guard,/CYBERTRMX_RECOVERY_527\?\.diagnostics/);
   assert.doesNotMatch(guard,/localStorage\.clear|sessionStorage\.clear/);
   const recovery=read('public/recover.html');
   assert.match(recovery,/getRegistrations/);
-  assert.match(recovery,/caches\.keys/);
+  assert.match(recovery,/cyberxtrmx\/staging/);
+  assert.match(recovery,/cybertrmx-staging-/);
   assert.doesNotMatch(recovery,/localStorage|sessionStorage/);
 });
 

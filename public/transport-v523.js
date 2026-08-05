@@ -3,9 +3,11 @@
 const SEC=window.CYBERTRMX_SECURITY||{};
 const nativeFetch=window.fetch.bind(window);
 const inFlight=new Map();
-const CLIENT_VERSION='5.2.3';
+const CLIENT_VERSION='5.2.6';
 const FUNCTION_PATH='/functions/v1/';
 const READ_ACTIONS=new Set(['dashboard','security_status','job_status']);
+let dashboardLocations=[];
+let dashboardServerTime=null;
 
 if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout!=='function'){
   AbortSignal.timeout=milliseconds=>{
@@ -44,17 +46,29 @@ function keyFor(url,init,headers){
   const idempotency=READ_ACTIONS.has(action)?'shared-read':headers.get('x-idempotency-key')||'';
   return [url,init.method||'GET',authorization.slice(-32),device,idempotency,String(init.body||'')].join('|');
 }
-async function snapshot(response){
-  return {
-    body:await response.text(),
-    status:response.status,
-    statusText:response.statusText,
-    headers:[...response.headers.entries()]
-  };
+async function snapshot(response,name,action){
+  const body=await response.text();
+  if(response.ok&&name==='cybertrmx-ops'&&action==='dashboard'){
+    try{
+      const payload=JSON.parse(body);
+      dashboardLocations=Array.isArray(payload.locations)?payload.locations:[];
+      dashboardServerTime=payload.server_time||new Date().toISOString();
+    }catch{}
+  }
+  return {body,status:response.status,statusText:response.statusText,headers:[...response.headers.entries()]};
 }
 function restore(data){return new Response(data.body,{status:data.status,statusText:data.statusText,headers:data.headers})}
+function localLocationsResponse(){
+  return new Response(JSON.stringify({
+    ok:true,
+    request_id:`local-${crypto.randomUUID?.()||Date.now()}`,
+    backend_version:'locations-from-dashboard-v1',
+    locations:dashboardLocations,
+    server_time:dashboardServerTime||new Date().toISOString()
+  }),{status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-CYBERTRMX-Source':'operations-dashboard'}});
+}
 function wait(milliseconds){return new Promise(resolve=>setTimeout(resolve,milliseconds))}
-async function send(url,init,headers){
+async function send(url,init,headers,name,action){
   let lastError;
   for(let attempt=0;attempt<2;attempt++){
     const controller=new AbortController();
@@ -63,7 +77,7 @@ async function send(url,init,headers){
       const response=await nativeFetch(url,{...init,headers,signal:controller.signal,cache:'no-store',credentials:'omit',mode:'cors'});
       clearTimeout(timer);
       if([502,503,504].includes(response.status)&&attempt===0){await wait(450);continue}
-      return snapshot(response);
+      return snapshot(response,name,action);
     }catch(error){
       clearTimeout(timer);lastError=error;
       if(attempt===0){await wait(450);continue}
@@ -76,15 +90,17 @@ window.fetch=function(input,init={}){
   const method=String(init.method||(typeof input!=='string'&&input?.method)||'GET').toUpperCase();
   if(!url.includes(FUNCTION_PATH)||method!=='POST')return nativeFetch(input,init);
   const name=functionName(url);
+  if(name==='cybertrmx-locations')return Promise.resolve(localLocationsResponse());
   const headers=normalizeHeaders(init.headers||(typeof input!=='string'&&input?.headers),name);
   const next={...init,method,headers};
+  const action=actionOf(next.body);
   const key=keyFor(url,next,headers);
   let pending=inFlight.get(key);
   if(!pending){
-    pending=send(url,next,headers).finally(()=>inFlight.delete(key));
+    pending=send(url,next,headers,name,action).finally(()=>inFlight.delete(key));
     inFlight.set(key,pending);
   }
   return pending.then(restore);
 };
-window.CYBERTRMX_TRANSPORT={version:CLIENT_VERSION,pending:()=>inFlight.size};
+window.CYBERTRMX_TRANSPORT={version:CLIENT_VERSION,pending:()=>inFlight.size,locations:()=>dashboardLocations.slice()};
 })();

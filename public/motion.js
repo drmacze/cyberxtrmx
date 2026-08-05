@@ -1,7 +1,8 @@
 (()=>{
 'use strict';
-const BUILD='5.3.2';
-const lowPower=matchMedia('(pointer:coarse)').matches||Boolean(navigator.connection?.saveData)||Boolean(navigator.deviceMemory&&navigator.deviceMemory<=4);
+const BUILD='5.3.3';
+const coarse=matchMedia('(pointer:coarse)').matches;
+const lowPower=coarse||Boolean(navigator.connection?.saveData)||Boolean(navigator.deviceMemory&&navigator.deviceMemory<=4);
 let bootReleased=false;
 
 function releaseBoot(reason='ready'){
@@ -13,44 +14,50 @@ function releaseBoot(reason='ready'){
   boot.classList.add('done');
   boot.setAttribute('aria-hidden','true');
   document.documentElement.dataset.cybertrmxReady=BUILD;
-  setTimeout(()=>boot.remove(),650);
+  setTimeout(()=>boot.remove(),420);
 }
 function armBootWatchdog(){
-  setTimeout(()=>releaseBoot('startup-watchdog'),3200);
-  window.addEventListener('load',()=>setTimeout(()=>releaseBoot('window-load'),1600),{once:true});
-  window.addEventListener('error',()=>setTimeout(()=>releaseBoot('startup-error'),120),{capture:true});
-  window.addEventListener('unhandledrejection',()=>setTimeout(()=>releaseBoot('startup-rejection'),120));
+  if(coarse)setTimeout(()=>releaseBoot('touch-shell'),180);
+  setTimeout(()=>releaseBoot('startup-watchdog'),2200);
+  window.addEventListener('load',()=>setTimeout(()=>releaseBoot('window-load'),220),{once:true});
+  window.addEventListener('error',()=>setTimeout(()=>releaseBoot('startup-error'),40),{capture:true});
+  window.addEventListener('unhandledrejection',()=>setTimeout(()=>releaseBoot('startup-rejection'),40));
 }
-function loadModule(name){
-  if(!document.querySelector(`link[data-module="${name}"]`)){
-    const css=document.createElement('link');css.rel='stylesheet';css.href=`./${name}.css?v=${BUILD}`;css.dataset.module=name;document.head.append(css);
-  }
-  if(!document.querySelector(`script[data-module="${name}"]`)){
-    const js=document.createElement('script');js.src=`./${name}.js?v=${BUILD}`;js.defer=true;js.dataset.module=name;document.head.append(js);
-  }
+function appendStyle(href,id){
+  if(document.querySelector(`#${id}`))return;
+  const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href=href;document.head.append(link);
 }
 function loadScript(name){
-  if(document.querySelector(`script[data-module="${name}"]`))return;
-  const js=document.createElement('script');js.src=`./${name}.js?v=${BUILD}`;js.defer=true;js.dataset.module=name;document.head.append(js);
+  if(document.querySelector(`script[data-module="${name}"]`))return Promise.resolve();
+  return new Promise((resolve)=>{
+    const script=document.createElement('script');
+    script.src=`./${name}.js?v=${BUILD}`;script.defer=true;script.dataset.module=name;
+    script.onload=resolve;script.onerror=resolve;document.head.append(script);
+  });
+}
+function loadModule(name){
+  appendStyle(`./${name}.css?v=${BUILD}`,`cybertrmx-${name}-style`);
+  return loadScript(name);
+}
+function loadExternal(src,id){
+  const existing=document.querySelector(`#${id}`);if(existing)return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');script.id=id;script.src=src;script.async=true;
+    script.onload=resolve;script.onerror=reject;document.head.append(script);
+  });
 }
 function tab(name){
   if(name==='guide'&&window.openCyberGuide){window.openCyberGuide();return}
   if(name==='patch'){
     if(window.CYBERTRMX_PATCH)window.CYBERTRMX_PATCH.open();
-    else setTimeout(()=>window.CYBERTRMX_PATCH?.open(),180);
+    else loadScript('patch-page').then(()=>window.CYBERTRMX_PATCH?.open());
     return;
   }
   if(name==='operations'){
-    if(window.CYBERTRMX_OPERATIONS)window.CYBERTRMX_OPERATIONS.open();
-    else{
-      window.toast?.('Operations is connecting');
-      let tries=0;
-      const timer=setInterval(()=>{
-        tries++;
-        if(window.CYBERTRMX_OPERATIONS){clearInterval(timer);window.CYBERTRMX_OPERATIONS.open()}
-        else if(tries>=16)clearInterval(timer);
-      },250);
-    }
+    if(window.CYBERTRMX_OPERATIONS){window.CYBERTRMX_OPERATIONS.open();return}
+    window.toast?.('Operations is connecting');
+    loadScript('cloud-bootstrap');
+    let tries=0;const timer=setInterval(()=>{tries++;if(window.CYBERTRMX_OPERATIONS){clearInterval(timer);window.CYBERTRMX_OPERATIONS.open()}else if(tries>=20)clearInterval(timer)},250);
     return;
   }
   const target=document.querySelector(`.nav-item[data-tab="${name}"]`)||document.querySelector(`[data-tab="${name}"]`);
@@ -71,31 +78,43 @@ function initMotion(){
   gsap.registerPlugin(ScrollTrigger);
   if(window.Lenis&&matchMedia('(pointer:fine)').matches){
     const lenis=new Lenis({smoothWheel:true,lerp:.09,anchors:true});
-    lenis.on('scroll',ScrollTrigger.update);
-    gsap.ticker.add(time=>lenis.raf(time*1000));
-    gsap.ticker.lagSmoothing(0);
+    lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(time=>lenis.raf(time*1000));gsap.ticker.lagSmoothing(0);
   }
-  gsap.from('.hero-frame',{opacity:0,scale:.985,duration:1.15,ease:'power3.out'});
-  gsap.from('.hero-eyebrow,.hero-title,.hero-desc,.hero-meta',{y:34,opacity:0,duration:1,ease:'power3.out',stagger:.1,delay:.15});
-  gsap.to('.hero-glow',{xPercent:-14,yPercent:10,scrollTrigger:{trigger:'.hero-frame',start:'top top',end:'bottom top',scrub:1}});
-  document.querySelectorAll('[data-reveal]').forEach(element=>gsap.from(element,{y:60,opacity:0,duration:1.05,ease:'power3.out',scrollTrigger:{trigger:element,start:'top 82%',toggleActions:'play none none reverse'}}));
-  document.querySelectorAll('.principle').forEach((element,index)=>gsap.from(element,{y:36,opacity:0,duration:.85,delay:index*.05,scrollTrigger:{trigger:element,start:'top 88%'}}));
-  gsap.from('.warning-stage',{clipPath:'inset(12% 8% 12% 8% round 30px)',opacity:.25,scrollTrigger:{trigger:'.warning-stage',start:'top 85%',end:'top 30%',scrub:1}});
+  gsap.from('.hero-frame',{opacity:0,scale:.985,duration:.8,ease:'power3.out'});
+  gsap.from('.hero-eyebrow,.hero-title,.hero-desc,.hero-meta',{y:24,opacity:0,duration:.75,ease:'power3.out',stagger:.07,delay:.1});
+  document.querySelectorAll('[data-reveal]').forEach(element=>gsap.from(element,{y:40,opacity:0,duration:.8,ease:'power3.out',scrollTrigger:{trigger:element,start:'top 88%',toggleActions:'play none none reverse'}}));
   ScrollTrigger.refresh();
+}
+async function loadDesktopMotion(){
+  if(lowPower||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  try{
+    appendStyle('https://unpkg.com/lenis@1.3.25/dist/lenis.css','cybertrmx-lenis-style');
+    await loadExternal('https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js','cybertrmx-gsap');
+    await loadExternal('https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js','cybertrmx-scroll-trigger');
+    await loadExternal('https://unpkg.com/lenis@1.3.25/dist/lenis.min.js','cybertrmx-lenis');
+    initMotion();
+  }catch(error){console.warn('Optional motion libraries unavailable',error)}
+}
+function scheduleFeatureModules(){
+  const schedule=(delay,task)=>setTimeout(task,delay);
+  schedule(30,()=>loadScript('copy-refresh'));
+  schedule(90,()=>loadScript('terminal-v2'));
+  schedule(150,()=>loadScript('command-hints'));
+  schedule(210,()=>loadScript('command-hints-v52'));
+  schedule(320,()=>loadScript('intel'));
+  schedule(430,()=>loadScript('intel-workspace'));
+  schedule(560,()=>loadScript('profile'));
+  schedule(700,()=>loadScript('guide'));
+  schedule(850,()=>loadModule('system-upgrade'));
+  schedule(1000,()=>loadModule('tracker-v2'));
+  schedule(lowPower?1500:950,()=>loadScript('cloud-bootstrap'));
 }
 
 armBootWatchdog();
-loadModule('system-upgrade');
-loadModule('tracker-v2');
-loadScript('patch-page');
-loadScript('terminal-v2');
-loadScript('command-hints');
-loadScript('command-hints-v52');
-loadScript('copy-refresh');
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+window.addEventListener('pageshow',()=>{if(!location.hash)requestAnimationFrame(()=>scrollTo(0,0))},{once:true});
 window.addEventListener('DOMContentLoaded',()=>{
-  buildNav();
-  setTimeout(initMotion,lowPower?900:120);
-  setTimeout(()=>releaseBoot('dom-ready'),lowPower?1800:2600);
-  setTimeout(()=>loadScript('cloud-bootstrap'),lowPower?1200:450);
+  buildNav();releaseBoot('dom-ready');scheduleFeatureModules();
+  if(!lowPower)window.addEventListener('load',()=>setTimeout(loadDesktopMotion,700),{once:true});
 });
 })();

@@ -7,18 +7,20 @@ test('frontend routes job actions to the dedicated API',()=>{
   const config=read('public/backend-config.js');
   const frontend=read('public/jobs-v53.js');
   assert.match(config,/jobsFunction:\s*'cybertrmx-jobs'/);
-  for(const action of ['run_lookup','job_status','cancel_job','retry_job','queue_status']){
-    assert.match(frontend,new RegExp(action));
-  }
+  for(const action of ['run_lookup','job_status','cancel_job','retry_job','queue_status'])assert.match(frontend,new RegExp(action));
   assert.match(frontend,/stopImmediatePropagation\(\)/);
   assert.match(frontend,/Writing the job to the persistent queue/);
 });
 
-test('PWA caches the 5.3 queue UI',()=>{
+test('queue UI is lazy-loaded through the protected bootstrap',()=>{
+  const motion=read('public/motion.js');
+  const bootstrap=read('public/cloud-bootstrap.js');
   const sw=read('public/sw.js');
-  assert.match(sw,/cybertrmx-v30/);
-  assert.match(sw,/jobs-v53\.js/);
-  assert.match(sw,/jobs-v53\.css/);
+  assert.match(motion,/loadScript\('cloud-bootstrap'\)/);
+  assert.match(bootstrap,/jobs-v53\.css/);
+  assert.match(bootstrap,/jobs-v53\.js/);
+  assert.match(sw,/cybertrmx-v31/);
+  assert.match(sw,/caches\.match\(event\.request, \{ ignoreSearch: true \}\)/);
 });
 
 test('database migration defines a lease-based durable queue',()=>{
@@ -36,9 +38,7 @@ test('database migration defines a lease-based durable queue',()=>{
 
 test('worker claims, heartbeats, retries, and seals evidence',()=>{
   const worker=read('supabase/functions/cybertrmx-worker/index.ts');
-  for(const contract of ['claim_next_job','heartbeat_job','fail_job','complete_job','cancel_worker_job']){
-    assert.match(worker,new RegExp(contract));
-  }
+  for(const contract of ['claim_next_job','heartbeat_job','fail_job','complete_job','cancel_worker_job'])assert.match(worker,new RegExp(contract));
   assert.match(worker,/AbortSignal\.timeout/);
   assert.match(worker,/WORKER_AUTH_INVALID/);
   assert.match(worker,/worker-chain/);

@@ -5,10 +5,10 @@ const read=path=>fs.readFileSync(path,'utf8');
 
 test('PWA caches every 5.2 security asset',()=>{
   const sw=read('public/sw.js');
-  for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js']){
+  for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css']){
     assert.match(sw,new RegExp(asset.replace('.','\\.')));
   }
-  assert.match(sw,/cybertrmx-v35/);
+  assert.match(sw,/cybertrmx-v36/);
 });
 
 test('security layer adds device and idempotency headers',()=>{

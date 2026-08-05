@@ -7,7 +7,20 @@ A mobile-first security operations workspace for cases, authorized scope, public
 - Production: `https://drmacze.github.io/cyberxtrmx/`
 - Staging: `https://drmacze.github.io/cyberxtrmx/staging/`
 
-Production is sourced from `main`. New frontend work starts on `staging` and is promoted only after contract and browser smoke tests pass.
+Production remains on the verified 5.2.8 interface. The staging branch currently carries **5.3.0-r2**, a safe persistent-job integration candidate.
+
+## 5.3.0-r2 staging candidate
+
+The existing PostgreSQL queue and Edge Function worker are connected through `public/jobs-r2.js` only in staging.
+
+- Lookup requests are written to `cybertrmx-jobs` and return a queue receipt immediately.
+- Worker execution continues after the browser closes.
+- Queue states include queued, running, retry wait, completed, failed, timed out, cancelled, and dead letter.
+- The staging UI exposes queue counts, event history, cancellation, manual retry, and terminal job commands.
+- The module does not replace the Supabase client, `window.fetch`, or the Operations API.
+- A queue failure remains inside the queue panel and cannot change the main Operations runtime status.
+- Production and staging use separate service-worker cache namespaces.
+- Deployment is blocked until source contracts and Chromium/WebKit smoke tests pass.
 
 ## Current architecture
 
@@ -26,24 +39,23 @@ Production is sourced from `main`. New frontend work starts on `staging` and is 
 
 - Critical interface files are locked to the user-verified production baseline
 - Production and staging are deployed to separate paths from separate branches
-- Staging carries a visible marker and `noindex,nofollow`
-- System Diagnostics reports frontend version, environment, cache, service worker, device identity, account session, latest endpoint, HTTP status, request ID, backend version, duration, and page errors
-- Clean Reload replaces application service workers and caches without deleting account sessions or workspace data
+- Staging carries a visible version marker and `noindex,nofollow`
+- System Diagnostics reports cache, service worker, device identity, account session, endpoint, HTTP status, request ID, backend version, duration, and page errors
+- Clean Reload replaces only staging service workers and staging caches when used from staging
 - Terminal commands: `guard status`, `guard open`, `guard recover`, and `guard staging`
-- Pages deployment is blocked when syntax or Production Guard contracts fail
-- Chromium and iPhone WebKit smoke tests exercise boot, navigation, Patch, Operations, Profile diagnostics, and backend-failure fallback
+- Pages deployment is blocked when source contracts or browser smoke tests fail
 
 ### Connected backend
 
 - Supabase Auth for workspace accounts, session handling, and TOTP authenticator factors
 - PostgreSQL for workspaces, members, cases, authorized assets, jobs, events, evidence, check-in requests, location points, devices, idempotency records, rate-limit ledgers, security events, and audit records
 - Row-level security and revoked direct browser grants for core operational tables
-- Edge Functions as the controlled data path for Operations, secure check-in submission, and location retrieval
+- Edge Functions as the controlled data path for Operations, persistent jobs, secure check-in submission, and location retrieval
 - Session-to-device binding with revocation controls
 - Structured API errors and request IDs
 - Rate limits for workspace actions and public check-in traffic
 - Idempotency records for duplicate-safe write operations
-- API polling instead of direct table subscriptions
+- Persistent queue leases, heartbeats, retry backoff, cancellation, and dead-letter handling
 
 ### Provider-backed collection
 
@@ -70,4 +82,4 @@ CYBERTRMX is built for owned assets, authorized reviews, public-source intellige
 
 ## Deployment
 
-GitHub Actions builds one Pages artifact containing production at the root and staging under `/staging/`. Source/contract checks gate deployment. Backend schema and Edge Functions run in the connected Supabase project.
+GitHub Actions builds one Pages artifact containing production at the root and staging under `/staging/`. Source contracts and Chromium/WebKit smoke tests gate deployment. Backend schema and Edge Functions run in the connected Supabase project.

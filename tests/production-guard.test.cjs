@@ -6,12 +6,13 @@ const read=path=>fs.readFileSync(path,'utf8');
 const pkg=JSON.parse(read('package.json'));
 const lock=JSON.parse(read('stability/frontend-lock.json'));
 
-test('all Production Guard version sources agree',()=>{
-  assert.equal(pkg.version,'5.2.8');
-  assert.equal(lock.version,pkg.version);
+test('staging candidate and production baseline versions are explicit',()=>{
+  assert.equal(pkg.version,'5.3.0-r2');
+  assert.equal(lock.version,'5.2.8');
+  assert.match(read('public/cloud-bootstrap.js'),/const V='5\.3\.0-r2'/);
+  assert.match(read('public/patch-page.js'),/CURRENT BUILD \/ 5\.3\.0-r2/);
+  assert.match(read('public/staging-marker.js'),/STAGING \/ 5\.3\.0-r2/);
   assert.match(read('public/recovery-527.js'),/const VERSION='5\.2\.8'/);
-  assert.match(read('public/cloud-bootstrap.js'),/const V='5\.2\.8'/);
-  assert.match(read('public/patch-page.js'),/CURRENT BUILD \/ 5\.2\.8/);
   assert.match(read('public/recover.html'),/CYBERTRMX 5\.2\.8/);
 });
 
@@ -45,7 +46,7 @@ test('Pages deployment publishes isolated production and staging trees',()=>{
   assert.match(workflow,/noindex,nofollow/);
   const marker=read('public/staging-marker.js');
   assert.match(marker,/CYBERTRMX_ENV='staging'/);
-  assert.match(marker,/STAGING \/ NOT PRODUCTION/);
+  assert.match(marker,/5\.3\.0-r2/);
 });
 
 test('production and staging service workers only delete their own cache namespace',()=>{

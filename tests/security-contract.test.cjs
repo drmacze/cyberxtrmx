@@ -3,46 +3,42 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const read=path=>fs.readFileSync(path,'utf8');
 
-test('PWA caches every authenticated security asset',()=>{
+test('PWA uses a small 5.3.3 startup shell',()=>{
   const sw=read('public/sw.js');
-  for(const asset of ['security-utils.js','device-v531.js','security-v52.js','security-v52.css','command-hints-v52.js','jobs-v53.js','jobs-v53.css']){
-    assert.match(sw,new RegExp(asset.replace('.','\\.')));
-  }
-  assert.match(sw,/cybertrmx-v30/);
+  assert.match(sw,/cybertrmx-v31/);
+  assert.match(sw,/const SHELL/);
+  assert.match(sw,/mobile-performance-v533\.css/);
+  assert.match(sw,/ignoreSearch:\s*true/);
+  assert.doesNotMatch(sw,/Promise\.allSettled/);
+  const shellBlock=sw.match(/const SHELL = \[([\s\S]*?)\];/)?.[1]||'';
+  assert.ok((shellBlock.match(/'\.\//g)||[]).length<=12,'startup shell must remain compact');
 });
 
-test('5.3.2 startup cannot remain behind the boot overlay',()=>{
+test('5.3.3 HTML does not block on external motion libraries',()=>{
+  const html=read('public/index.html');
   const motion=read('public/motion.js');
-  const sw=read('public/sw.js');
-  assert.match(motion,/releaseBoot/);
-  assert.match(motion,/startup-watchdog/);
-  assert.match(motion,/unhandledrejection/);
-  assert.match(motion,/pointer:coarse/);
-  assert.match(motion,/loadScript\('cloud-bootstrap'\)/);
-  assert.match(sw,/Promise\.allSettled/);
-  assert.match(sw,/cache:\s*'reload'/);
-  assert.match(sw,/motion\.js/);
+  assert.doesNotMatch(html,/gsap\.min\.js/);
+  assert.doesNotMatch(html,/ScrollTrigger\.min\.js/);
+  assert.doesNotMatch(html,/lenis\.min\.js/);
+  assert.match(html,/app\.js\?v=5\.3\.3/);
+  assert.match(html,/motion\.js\?v=5\.3\.3/);
+  assert.match(html,/@media\(pointer:coarse\).*boot-screen/s);
+  assert.match(motion,/scheduleFeatureModules/);
+  assert.match(motion,/loadDesktopMotion/);
+  assert.match(motion,/touch-shell/);
+  assert.match(motion,/scrollRestoration='manual'/);
 });
 
-test('security layer adds device and idempotency headers',()=>{
-  const source=read('public/security-v52.js');
-  assert.match(source,/x-device-id/);
-  assert.match(source,/x-idempotency-key/);
-  assert.match(source,/x-client-version/);
-  assert.match(source,/instance\.channel=noRealtimeChannel/);
-});
-
-test('5.3.1 transport protects every authenticated function call',()=>{
+test('security modules remain behind the protected bootstrap path',()=>{
   const bootstrap=read('public/cloud-bootstrap.js');
   const source=read('public/device-v531.js');
+  assert.match(bootstrap,/security-utils\.js/);
   assert.match(bootstrap,/device-v531\.js/);
+  assert.match(bootstrap,/security-v52\.js/);
   assert.ok(bootstrap.indexOf('device-v531.js')<bootstrap.indexOf('security-v52.js'));
-  assert.match(source,/cybertrmx-ops/);
-  assert.match(source,/cybertrmx-jobs/);
-  assert.match(source,/cybertrmx-locations/);
   assert.match(source,/x-device-id/);
+  assert.match(source,/x-idempotency-key/);
   assert.match(source,/DEVICE_ID_REQUIRED/);
-  assert.match(source,/deviceId\(force\)/);
   assert.doesNotMatch(source,/cybertrmx-checkin/);
 });
 

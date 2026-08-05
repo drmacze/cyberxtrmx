@@ -1,12 +1,13 @@
 {
   "candidate": "5.3.0-r3",
-  "staging_source_commit": "630d517a9bc174fb3044b5033e66ed1ae63c0c5d",
+  "staging_source_commit": "7ca5fd8d5b31d203f48eb92831b91aa6516410a8",
   "staging_cache": "cybertrmx-staging-v46-r3",
+  "terminal_parser": "native-r3-hook",
   "required_artifact": [
     "jobs-r3.js",
     "r3-terminal-bridge.js",
     "security-r3.js"
   ],
   "production_frontend_changed": false,
-  "triggered_at": "2026-08-06T05:05:00+07:00"
+  "triggered_at": "2026-08-06T05:35:00+07:00"
 }

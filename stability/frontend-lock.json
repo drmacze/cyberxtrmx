@@ -1,7 +1,7 @@
 {
-  "version": "5.2.3",
-  "baseline_commit": "c49633eafac544dc69c33e4df2d295405f66625f",
-  "description": "Critical frontend files must remain byte-for-byte identical to the last verified 5.2 baseline unless the stability lock is intentionally reviewed and moved.",
+  "version": "5.2.8",
+  "baseline_commit": "45944c57e421161a91da1dd002eefe6b78cbf1da",
+  "description": "Critical interface files must remain byte-for-byte identical to the user-verified 5.2.7 production baseline. New work belongs in staging until the baseline is intentionally reviewed and moved.",
   "locked_paths": [
     "public/index.html",
     "public/app.js",

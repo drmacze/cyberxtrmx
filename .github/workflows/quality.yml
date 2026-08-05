@@ -58,17 +58,25 @@ jobs:
           missing = [asset for asset in assets if asset and not (Path('public') / asset).exists()]
           if missing:
               raise SystemExit('Missing cached assets: ' + ', '.join(missing))
+
           required = {
-              'security-utils.js', 'security-v52.js', 'security-v52.css',
-              'command-hints-v52.js', 'tracker-engine.js', 'tracker-engine.css',
-              'recovery-527.js', 'guard-v528.js', 'guard-v528.css', 'recover.html'
+              'security-utils.js', 'security-v52.css', 'command-hints-v52.js',
+              'tracker-engine.js', 'tracker-engine.css', 'recovery-527.js',
+              'guard-v528.js', 'guard-v528.css', 'recover.html'
           }
-          if version == '5.3.0-r2':
-              required.update({'jobs-r2.js', 'jobs-r2.css'})
+          expected_cache = 'cybertrmx-v42'
+          if version == '5.3.0-r3':
+              required.update({'jobs-r3.js', 'jobs-r2.css', 'security-r3.js'})
+              expected_cache = 'cybertrmx-v45-r3'
+          elif version == '5.3.0-r2':
+              required.update({'jobs-r2.js', 'jobs-r2.css', 'security-v52.js'})
+              expected_cache = 'cybertrmx-v43-r2'
+          else:
+              required.add('security-v52.js')
+
           absent = sorted(required.difference(assets))
           if absent:
               raise SystemExit('Required guarded assets are not cached: ' + ', '.join(absent))
-          expected_cache = 'cybertrmx-v43-r2' if version == '5.3.0-r2' else 'cybertrmx-v42'
           if expected_cache not in sw:
               raise SystemExit(f'The active PWA cache is not {expected_cache}.')
           if "CACHE_NAMESPACE = 'cybertrmx-v'" not in sw:
@@ -80,6 +88,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
           grep -q "guard-v528.js" public/cloud-bootstrap.js
           grep -q "recovery-527" public/motion.js
           grep -q "lastRequestId" public/recovery-527.js
@@ -89,14 +98,19 @@ jobs:
             echo 'Withdrawn loader is still active in connected bootstrap.'
             exit 1
           fi
-          if [ "$(node -p "require('./package.json').version")" = "5.3.0-r2" ]; then
-            grep -q "jobs-r2.js" public/cloud-bootstrap.js
+          if [ "$version" = "5.3.0-r3" ]; then
+            grep -q "security-r3.js" public/cloud-bootstrap.js
+            grep -q "jobs-r3.js" public/cloud-bootstrap.js
             grep -q "jobsFunction: 'cybertrmx-jobs'" public/backend-config.js
-            grep -q "Failure of this panel never changes the Operations runtime status" public/jobs-r2.js
-            if grep -qE "window\.fetch\s*=|supabase\.createClient\s*=|functions\.invoke\s*=" public/jobs-r2.js; then
-              echo 'Staging jobs replaces a protected global transport.'
+            grep -q "PERSISTENT QUEUE RECEIPT" public/jobs-r3.js
+            grep -q "legacy operation path is disabled" public/jobs-r3.js
+            if grep -qE "window\.fetch\s*=|supabase\.createClient\s*=|functions\.invoke\s*=" public/jobs-r3.js; then
+              echo 'R3 jobs replaces a protected global transport.'
               exit 1
             fi
+          elif [ "$version" = "5.3.0-r2" ]; then
+            grep -q "jobs-r2.js" public/cloud-bootstrap.js
+            grep -q "Failure of this panel never changes the Operations runtime status" public/jobs-r2.js
           fi
           echo 'Guarded recovery and staging queue paths passed.'
 
@@ -104,10 +118,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "x-device-id" public/security-v52.js
-          grep -q "x-idempotency-key" public/security-v52.js
+          version="$(node -p "require('./package.json').version")"
+          security_file="public/security-v52.js"
+          if [ "$version" = "5.3.0-r3" ]; then
+            security_file="public/security-r3.js"
+            grep -q "readInflight" "$security_file"
+            grep -q "securityInflight" "$security_file"
+            grep -q "security-r3-qr" "$security_file"
+          fi
+          grep -q "x-device-id" "$security_file"
+          grep -q "x-idempotency-key" "$security_file"
+          grep -q "Credentials are only accepted in the protected account form" "$security_file"
           grep -q "x-submission-key" public/checkin.js
-          grep -q "Credentials are only accepted in the protected account form" public/security-v52.js
           if grep -q "auth create <email> <password>" public/command-hints-v52.js; then
             echo 'Credential-bearing terminal clue found.'
             exit 1

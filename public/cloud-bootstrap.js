@@ -10,6 +10,7 @@ async function boot(){
   if(!window.supabase)await load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.54.0/dist/umd/supabase.min.js','cybertrmx-supabase-client');
   await load('./auth-redirect-fix.js','cybertrmx-auth-redirect-fix');
   await load('./security-utils.js','cybertrmx-security-utils');
+  await load('./device-v531.js','cybertrmx-device-v531');
   await load('./security-v52.js','cybertrmx-security-v52');
   await load('./jobs-v53.js','cybertrmx-jobs-v53');
   await load('./cloud-core.js','cybertrmx-cloud-core');

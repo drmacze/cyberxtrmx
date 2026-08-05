@@ -3,12 +3,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const read=path=>fs.readFileSync(path,'utf8');
 
-test('PWA caches every 5.2 security asset',()=>{
+test('PWA caches every authenticated security asset',()=>{
   const sw=read('public/sw.js');
-  for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js']){
+  for(const asset of ['security-utils.js','device-v531.js','security-v52.js','security-v52.css','command-hints-v52.js','jobs-v53.js','jobs-v53.css']){
     assert.match(sw,new RegExp(asset.replace('.','\\.')));
   }
-  assert.match(sw,/cybertrmx-v27/);
+  assert.match(sw,/cybertrmx-v29/);
 });
 
 test('security layer adds device and idempotency headers',()=>{
@@ -17,6 +17,20 @@ test('security layer adds device and idempotency headers',()=>{
   assert.match(source,/x-idempotency-key/);
   assert.match(source,/x-client-version/);
   assert.match(source,/instance\.channel=noRealtimeChannel/);
+});
+
+test('5.3.1 transport protects every authenticated function call',()=>{
+  const bootstrap=read('public/cloud-bootstrap.js');
+  const source=read('public/device-v531.js');
+  assert.match(bootstrap,/device-v531\.js/);
+  assert.ok(bootstrap.indexOf('device-v531.js')<bootstrap.indexOf('security-v52.js'));
+  assert.match(source,/cybertrmx-ops/);
+  assert.match(source,/cybertrmx-jobs/);
+  assert.match(source,/cybertrmx-locations/);
+  assert.match(source,/x-device-id/);
+  assert.match(source,/DEVICE_ID_REQUIRED/);
+  assert.match(source,/deviceId\(force\)/);
+  assert.doesNotMatch(source,/cybertrmx-checkin/);
 });
 
 test('terminal blocks password-bearing account commands',()=>{

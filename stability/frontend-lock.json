@@ -1,5 +1,5 @@
 {
-  "version": "5.2.2",
+  "version": "5.2.3",
   "baseline_commit": "c49633eafac544dc69c33e4df2d295405f66625f",
   "description": "Critical frontend files must remain byte-for-byte identical to the last verified 5.2 baseline unless the stability lock is intentionally reviewed and moved.",
   "locked_paths": [

@@ -1,4 +1,6 @@
 const {test,expect}=require('@playwright/test');
+const pkg=require('../../package.json');
+const currentVersion=pkg.version;
 
 const supabaseStub=`
 window.supabase={createClient(){
@@ -40,7 +42,7 @@ async function openStableShell(page,options={}){
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   await routeExternal(page,options);
-  await page.goto('/?smoke=5.2.8',{waitUntil:'domcontentloaded'});
+  await page.goto(`/?smoke=${encodeURIComponent(currentVersion)}`,{waitUntil:'domcontentloaded'});
   await expect(page.locator('.floating-nav')).toHaveCount(1);
   await expect(page.locator('#boot-screen')).toHaveClass(/done/,{timeout:5000});
   await expect(page.locator('#view-overview')).toHaveClass(/active/);
@@ -84,7 +86,7 @@ test('Guide, Patch, and Operations open without replacing the shell',async({page
   await page.locator('.floating-links [data-go="patch"]').click();
   await expect(page.locator('#view-patch')).toHaveClass(/active/);
   await expect(page.locator('#view-patch')).toBeVisible();
-  await expect(page.locator('#view-patch')).toContainText('CURRENT BUILD / 5.2.8');
+  await expect(page.locator('#view-patch')).toContainText(`CURRENT BUILD / ${currentVersion}`);
 
   await expect.poll(()=>page.evaluate(()=>typeof window.CYBERTRMX_OPERATIONS?.open)).toBe('function');
   await page.evaluate(()=>window.CYBERTRMX_OPERATIONS.open());

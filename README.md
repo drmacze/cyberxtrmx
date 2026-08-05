@@ -2,21 +2,36 @@
 
 A mobile-first security operations workspace for cases, authorized scope, public intelligence, evidence, controlled device sessions, and permission-based location check-ins.
 
-## Live workspace
+## Environments
 
-`https://drmacze.github.io/cyberxtrmx/`
+- Production: `https://drmacze.github.io/cyberxtrmx/`
+- Staging: `https://drmacze.github.io/cyberxtrmx/staging/`
+
+Production is sourced from `main`. New frontend work starts on `staging` and is promoted only after contract and browser smoke tests pass.
 
 ## Current architecture
 
 ### Frontend
 
 - Static HTML, CSS, and JavaScript in `public/`
-- Installable PWA with offline shell caching
+- Installable PWA with isolated production and staging cache namespaces
 - Responsive layout for iPhone and desktop
 - Terminal, Intel, Monitor, Operations, Profile, Guide, and Patch views
 - Contextual terminal command clues
 - Protected account form; credentials are not accepted through terminal history
 - Security Center for MFA and registered-device controls
+- Production Guard diagnostics in Profile and terminal commands
+
+### Production Guard
+
+- Critical interface files are locked to the user-verified production baseline
+- Production and staging are deployed to separate paths from separate branches
+- Staging carries a visible marker and `noindex,nofollow`
+- System Diagnostics reports frontend version, environment, cache, service worker, device identity, account session, latest endpoint, HTTP status, request ID, backend version, duration, and page errors
+- Clean Reload replaces application service workers and caches without deleting account sessions or workspace data
+- Terminal commands: `guard status`, `guard open`, `guard recover`, and `guard staging`
+- Pages deployment is blocked when syntax or Production Guard contracts fail
+- Chromium and iPhone WebKit smoke tests exercise boot, navigation, Patch, Operations, Profile diagnostics, and backend-failure fallback
 
 ### Connected backend
 
@@ -49,17 +64,10 @@ A mobile-first security operations workspace for cases, authorized scope, public
 - Backend receipt and workspace audit record
 - Apple Maps, Google Maps, default map app, and OpenStreetMap actions
 
-### Quality controls
-
-- JavaScript syntax checks on every push
-- Unit tests for device identity, password assessment, SHA-1, and breach-range matching
-- Contract tests for PWA caching, device headers, idempotency headers, protected terminal commands, and check-in retry safety
-- Product copy and required-asset checks in GitHub Actions
-
 ## Scope and data boundaries
 
 CYBERTRMX is built for owned assets, authorized reviews, public-source intelligence, and device data shared with clear approval. Phone analysis reports numbering-plan metadata only. It does not identify a private owner or derive a live position from a phone number. External account credentials are never tested, captured, or changed.
 
 ## Deployment
 
-GitHub Actions publishes `public/` to GitHub Pages. Backend schema and Edge Functions run in the connected Supabase project.
+GitHub Actions builds one Pages artifact containing production at the root and staging under `/staging/`. Source/contract checks gate deployment. Backend schema and Edge Functions run in the connected Supabase project.

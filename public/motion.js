@@ -110,6 +110,7 @@ function scheduleFeatureModules(){
   schedule(lowPower?1500:950,()=>loadScript('cloud-bootstrap'));
 }
 
+appendStyle(`./mobile-performance-v533.css?v=${BUILD}`,'cybertrmx-mobile-performance-style');
 armBootWatchdog();
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 window.addEventListener('pageshow',()=>{if(!location.hash)requestAnimationFrame(()=>scrollTo(0,0))},{once:true});

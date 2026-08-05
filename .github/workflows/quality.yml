@@ -64,8 +64,8 @@ jobs:
           absent = sorted(required.difference(assets))
           if absent:
               raise SystemExit('Required stability assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v37' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.2.3 Operations recovery cache.')
+          if 'cybertrmx-v38' not in sw:
+              raise SystemExit('The active PWA cache is not the 5.2.4 compatibility cache.')
           print(f'Validated {len(assets)} cached assets.')
           PY
 

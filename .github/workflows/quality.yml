@@ -56,12 +56,15 @@ jobs:
           missing = [asset for asset in assets if asset and not (Path('public') / asset).exists()]
           if missing:
               raise SystemExit('Missing cached assets: ' + ', '.join(missing))
-          required = {'security-utils.js', 'security-v52.js', 'security-v52.css', 'command-hints-v52.js'}
+          required = {
+              'security-utils.js', 'security-v52.js', 'security-v52.css',
+              'command-hints-v52.js', 'tracker-engine.js', 'tracker-engine.css'
+          }
           absent = sorted(required.difference(assets))
           if absent:
-              raise SystemExit('5.2 security assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v35' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.2.2 cache.')
+              raise SystemExit('Required stability assets are not cached: ' + ', '.join(absent))
+          if 'cybertrmx-v36' not in sw:
+              raise SystemExit('The active PWA cache is not the 5.2.2 stability cache.')
           print(f'Validated {len(assets)} cached assets.')
           PY
 

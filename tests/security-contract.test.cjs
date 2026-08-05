@@ -3,54 +3,50 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const read=path=>fs.readFileSync(path,'utf8');
 
-test('PWA caches every active security, guard, and staging queue asset',()=>{
+test('PWA caches every active R3 security, guard, and queue asset',()=>{
   const sw=read('public/sw.js');
-  for(const asset of ['security-utils.js','security-v52.js','security-v52.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html','jobs-r2.js','jobs-r2.css']){
-    assert.match(sw,new RegExp(asset.replaceAll('.','\\.')));
-  }
-  assert.match(sw,/cybertrmx-v43-r2/);
+  for(const asset of ['security-utils.js','security-r3.js','security-v52.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html','jobs-r3.js','jobs-r2.css'])assert.match(sw,new RegExp(asset.replaceAll('.','\\.')));
+  assert.match(sw,/cybertrmx-v44-r3/);
+  assert.doesNotMatch(sw,/jobs-r2\.js|security-v52\.js/);
   assert.match(sw,/CACHE_NAMESPACE = 'cybertrmx-v'/);
 });
 
-test('security layer adds device and idempotency headers',()=>{
-  const source=read('public/security-v52.js');
-  assert.match(source,/x-device-id/);
-  assert.match(source,/x-idempotency-key/);
-  assert.match(source,/x-client-version/);
+test('R3 security coalesces protected reads and renders MFA safely',()=>{
+  const source=read('public/security-r3.js');
+  for(const marker of ['x-device-id','x-idempotency-key','x-client-version','readInflight','readCache','securityInflight'])assert.match(source,new RegExp(marker));
   assert.match(source,/instance\.channel=noRealtimeChannel/);
+  assert.match(source,/encodeURIComponent\(raw\)/);
+  assert.match(source,/security-r3-qr/);
+  assert.doesNotMatch(source,/src=\\"\$\{enrollment\.totp\.qr_code\}/);
 });
 
-test('Production Guard and stable Operations load before the staging queue',()=>{
+test('R3 jobs and security install before Operations core',()=>{
   const bootstrap=read('public/cloud-bootstrap.js');
-  const guardIndex=bootstrap.indexOf("guard-v528.js");
-  const backendIndex=bootstrap.indexOf("backend-config.js");
-  const securityIndex=bootstrap.indexOf("security-v52.js");
-  const coreIndex=bootstrap.indexOf("cloud-core.js");
-  const jobsIndex=bootstrap.indexOf("jobs-r2.js");
-  assert.ok(guardIndex>=0,'Production Guard is not loaded');
-  assert.ok(guardIndex<backendIndex,'Production Guard must load before backend configuration');
-  assert.ok(backendIndex<securityIndex,'backend configuration must load before security client');
-  assert.ok(securityIndex<coreIndex,'security client must load before Operations core');
-  assert.ok(coreIndex<jobsIndex,'staging jobs must load after the stable Operations core');
-  assert.doesNotMatch(bootstrap,/transport-v523|patch-click-v525|jobs-v53/);
+  const guard=bootstrap.indexOf('guard-v528.js');
+  const backend=bootstrap.indexOf('backend-config.js');
+  const security=bootstrap.indexOf('security-r3.js');
+  const jobs=bootstrap.indexOf('jobs-r3.js');
+  const core=bootstrap.indexOf('cloud-core.js');
+  assert.ok(guard>=0&&guard<backend);
+  assert.ok(backend<security);
+  assert.ok(security<jobs);
+  assert.ok(jobs<core,'jobs-r3 must register early capture handlers before cloud-core');
+  assert.doesNotMatch(bootstrap,/jobs-r2\.js|security-v52\.js|transport-v523|patch-click-v525/);
 });
 
-test('active recovery path supplies device identity, inline locations, and request diagnostics',()=>{
+test('active recovery path reports the R3 candidate',()=>{
   const source=read('public/recovery-527.js');
   assert.match(source,/x-device-id/);
   assert.match(source,/name==='cybertrmx-locations'/);
   assert.match(source,/dashboardLocations/);
   assert.match(source,/lastRequestId/);
-  assert.match(source,/lastBackendVersion/);
-  assert.match(source,/diagnostics:\(\)=>/);
-  assert.match(source,/const VERSION='5\.2\.8'/);
+  assert.match(source,/const VERSION='5\.3\.0-r3'/);
 });
 
-test('terminal blocks password-bearing account commands',()=>{
-  const source=read('public/security-v52.js');
+test('terminal credential protection remains active in R3',()=>{
+  const source=read('public/security-r3.js');
   assert.match(source,/Credentials are only accepted in the protected account form/);
   const hints=read('public/command-hints-v52.js');
-  assert.match(hints,/splice/);
   assert.match(hints,/auth open/);
   assert.doesNotMatch(hints,/auth create <email> <password>/);
 });

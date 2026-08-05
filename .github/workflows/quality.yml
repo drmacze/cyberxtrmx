@@ -46,17 +46,35 @@ jobs:
           if missing:
               raise SystemExit('Missing cached assets: ' + ', '.join(missing))
           required = {
+              'index.html', 'styles.css', 'mobile.css', 'landing.css',
               'security-utils.js', 'device-v531.js', 'security-v52.js',
               'security-v52.css', 'command-hints-v52.js', 'jobs-v53.js',
-              'jobs-v53.css'
+              'jobs-v53.css', 'cloud-bootstrap.js', 'motion.js'
           }
           absent = sorted(required.difference(assets))
           if absent:
-              raise SystemExit('Required security or queue assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v29' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.3.1 cache.')
+              raise SystemExit('Required frontend assets are not cached: ' + ', '.join(absent))
+          if 'cybertrmx-v32' not in sw:
+              raise SystemExit('The active PWA cache is not the 5.3.4 rollback cache.')
           print(f'Validated {len(assets)} cached assets.')
           PY
+
+      - name: Check stable frontend contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'gsap.min.js' public/index.html
+          grep -q 'ScrollTrigger.min.js' public/index.html
+          grep -q 'lenis.min.js' public/index.html
+          grep -q 'intel.js' public/index.html
+          grep -q 'guide.js' public/index.html
+          grep -q 'profile.js' public/index.html
+          grep -q 'buildNav' public/motion.js
+          if grep -qE 'mobile-performance-v533|scheduleFeatureModules|touch-shell' public/index.html public/motion.js; then
+            echo 'Withdrawn 5.3.3 frontend code is still active.'
+            exit 1
+          fi
+          echo 'Stable frontend contract passed.'
 
       - name: Check security contracts
         shell: bash

@@ -8,7 +8,20 @@ test('PWA caches every authenticated security asset',()=>{
   for(const asset of ['security-utils.js','device-v531.js','security-v52.js','security-v52.css','command-hints-v52.js','jobs-v53.js','jobs-v53.css']){
     assert.match(sw,new RegExp(asset.replace('.','\\.')));
   }
-  assert.match(sw,/cybertrmx-v29/);
+  assert.match(sw,/cybertrmx-v30/);
+});
+
+test('5.3.2 startup cannot remain behind the boot overlay',()=>{
+  const motion=read('public/motion.js');
+  const sw=read('public/sw.js');
+  assert.match(motion,/releaseBoot/);
+  assert.match(motion,/startup-watchdog/);
+  assert.match(motion,/unhandledrejection/);
+  assert.match(motion,/pointer:coarse/);
+  assert.match(motion,/loadScript\('cloud-bootstrap'\)/);
+  assert.match(sw,/Promise\.allSettled/);
+  assert.match(sw,/cache:\s*'reload'/);
+  assert.match(sw,/motion\.js/);
 });
 
 test('security layer adds device and idempotency headers',()=>{

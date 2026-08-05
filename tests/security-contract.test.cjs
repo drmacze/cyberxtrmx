@@ -6,7 +6,7 @@ const read=path=>fs.readFileSync(path,'utf8');
 test('PWA caches every active R3 security, guard, and queue asset',()=>{
   const sw=read('public/sw.js');
   for(const asset of ['security-utils.js','security-r3.js','security-v52.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html','jobs-r3.js','jobs-r2.css'])assert.match(sw,new RegExp(asset.replaceAll('.','\\.')));
-  assert.match(sw,/cybertrmx-v44-r3/);
+  assert.match(sw,/cybertrmx-v45-r3/);
   assert.doesNotMatch(sw,/jobs-r2\.js|security-v52\.js/);
   assert.match(sw,/CACHE_NAMESPACE = 'cybertrmx-v'/);
 });

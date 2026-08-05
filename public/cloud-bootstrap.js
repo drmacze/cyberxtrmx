@@ -5,6 +5,7 @@ async function boot(){
  addStyle('./cloud-core.css','cybertrmx-cloud-style');
  addStyle('./security-v52.css','cybertrmx-security-style');
  try{
+  await load('./patch-click-v525.js','cybertrmx-patch-click-v525');
   await load('./backend-config.js','cybertrmx-backend-config');
   if(!window.supabase)await load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.54.0/dist/umd/supabase.min.js','cybertrmx-supabase-client');
   await load('./auth-redirect-fix.js','cybertrmx-auth-redirect-fix');

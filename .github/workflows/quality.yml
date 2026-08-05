@@ -57,16 +57,28 @@ jobs:
           if missing:
               raise SystemExit('Missing cached assets: ' + ', '.join(missing))
           required = {
-              'security-utils.js', 'security-v52.js', 'security-v52.css',
-              'command-hints-v52.js', 'tracker-engine.js', 'tracker-engine.css'
+              'security-utils.js', 'transport-v523.js', 'security-v52.js',
+              'security-v52.css', 'command-hints-v52.js',
+              'tracker-engine.js', 'tracker-engine.css'
           }
           absent = sorted(required.difference(assets))
           if absent:
               raise SystemExit('Required stability assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v36' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.2.2 stability cache.')
+          if 'cybertrmx-v37' not in sw:
+              raise SystemExit('The active PWA cache is not the 5.2.3 Operations recovery cache.')
           print(f'Validated {len(assets)} cached assets.')
           PY
+
+      - name: Check Operations transport
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "transport-v523.js" public/cloud-bootstrap.js
+          grep -q "READ_ACTIONS" public/transport-v523.js
+          grep -q "shared-read" public/transport-v523.js
+          grep -q "name==='cybertrmx-locations'" public/transport-v523.js
+          grep -q "x-device-id" public/transport-v523.js
+          echo 'Operations transport contract passed.'
 
       - name: Check security contracts
         shell: bash

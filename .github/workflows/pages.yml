@@ -43,8 +43,43 @@ jobs:
       - name: Run Production Guard contracts
         run: npm test
 
-  deploy:
+  ui-smoke:
     needs: guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout candidate source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install test dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run browser smoke tests
+        run: npm run test:ui
+
+      - name: Upload deployment diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-smoke-${{ github.ref_name }}
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  deploy:
+    needs: [guard, ui-smoke]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

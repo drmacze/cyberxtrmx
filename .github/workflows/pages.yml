@@ -116,6 +116,16 @@ jobs:
               html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">', 1)
           if 'name="cybertrmx-build"' not in html:
               html = html.replace('</head>', f'<meta name="cybertrmx-build" content="{version}">\n</head>', 1)
+          if version == '5.3.0-r3' and 'r3-terminal-bridge.js' not in html:
+              early = (
+                  f'<script id="cybertrmx-backend-config" data-ready="1" src="./backend-config.js?v={version}"></script>\n'
+                  f'<script id="cybertrmx-jobs-r3" data-ready="1" src="./jobs-r3.js?v={version}"></script>\n'
+                  f'<script id="cybertrmx-r3-terminal-bridge" src="./r3-terminal-bridge.js?v={version}"></script>\n'
+              )
+              needle = '<script src="./app.js" defer></script>'
+              if needle not in html:
+                  raise SystemExit('Unable to find app.js insertion point for the R3 bridge.')
+              html = html.replace(needle, early + needle, 1)
           marker = f'<script src="./staging-marker.js?v={version}"></script>'
           if 'staging-marker.js' not in html:
               html = html.replace('</body>', f'{marker}\n</body>')
@@ -147,8 +157,18 @@ jobs:
           if [ "$version" = "5.3.0-r3" ]; then
             grep -q "jobs-r3.js" site/staging/cloud-bootstrap.js
             grep -q "security-r3.js" site/staging/cloud-bootstrap.js
-            grep -q "cybertrmx-staging-v45-r3" site/staging/sw.js
-            grep -q "jobs-r3.js" site/staging/sw.js
+            grep -q "cybertrmx-staging-v46-r3" site/staging/sw.js
+            grep -q "r3-terminal-bridge.js" site/staging/sw.js
+            python - <<'PY'
+          from pathlib import Path
+          html=Path('site/staging/index.html').read_text(encoding='utf-8')
+          required=['backend-config.js','jobs-r3.js','r3-terminal-bridge.js','app.js']
+          positions=[html.find(item) for item in required]
+          if any(position < 0 for position in positions):
+              raise SystemExit('R3 terminal startup assets are missing from the staging artifact.')
+          if positions != sorted(positions):
+              raise SystemExit('R3 terminal bridge does not load before the legacy app parser.')
+          PY
           fi
           node -e "const b=require('./site/staging/build.json'); if(b.environment!=='staging'||b.version!==process.argv[1]) process.exit(1)" "$version"
           echo "Verified staging artifact ${version}."

@@ -1,6 +1,7 @@
 (()=>{
 'use strict';
 const BUILD='5.3.2';
+const lowPower=matchMedia('(pointer:coarse)').matches||Boolean(navigator.connection?.saveData)||Boolean(navigator.deviceMemory&&navigator.deviceMemory<=4);
 let bootReleased=false;
 
 function releaseBoot(reason='ready'){
@@ -47,7 +48,7 @@ function tab(name){
       const timer=setInterval(()=>{
         tries++;
         if(window.CYBERTRMX_OPERATIONS){clearInterval(timer);window.CYBERTRMX_OPERATIONS.open()}
-        else if(tries>=12)clearInterval(timer);
+        else if(tries>=16)clearInterval(timer);
       },250);
     }
     return;
@@ -65,15 +66,15 @@ function buildNav(){
   document.addEventListener('click',event=>{if(!nav.contains(event.target))nav.classList.remove('open')});
 }
 function initMotion(){
+  if(lowPower||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   if(!window.gsap||!window.ScrollTrigger)return;
   gsap.registerPlugin(ScrollTrigger);
-  if(window.Lenis){
+  if(window.Lenis&&matchMedia('(pointer:fine)').matches){
     const lenis=new Lenis({smoothWheel:true,lerp:.09,anchors:true});
     lenis.on('scroll',ScrollTrigger.update);
     gsap.ticker.add(time=>lenis.raf(time*1000));
     gsap.ticker.lagSmoothing(0);
   }
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   gsap.from('.hero-frame',{opacity:0,scale:.985,duration:1.15,ease:'power3.out'});
   gsap.from('.hero-eyebrow,.hero-title,.hero-desc,.hero-meta',{y:34,opacity:0,duration:1,ease:'power3.out',stagger:.1,delay:.15});
   gsap.to('.hero-glow',{xPercent:-14,yPercent:10,scrollTrigger:{trigger:'.hero-frame',start:'top top',end:'bottom top',scrub:1}});
@@ -91,10 +92,10 @@ loadScript('terminal-v2');
 loadScript('command-hints');
 loadScript('command-hints-v52');
 loadScript('copy-refresh');
-loadScript('cloud-bootstrap');
 window.addEventListener('DOMContentLoaded',()=>{
   buildNav();
-  setTimeout(initMotion,120);
-  setTimeout(()=>releaseBoot('dom-ready'),2600);
+  setTimeout(initMotion,lowPower?900:120);
+  setTimeout(()=>releaseBoot('dom-ready'),lowPower?1800:2600);
+  setTimeout(()=>loadScript('cloud-bootstrap'),lowPower?1200:450);
 });
 })();

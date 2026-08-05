@@ -16,9 +16,20 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout
+      - name: Checkout full history
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install test dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Check JavaScript syntax
         shell: bash
@@ -29,7 +40,7 @@ jobs:
             node --check "$file"
           done < <(find public -type f -name '*.js' -print0)
 
-      - name: Run security tests
+      - name: Run source and contract tests
         run: npm test
 
       - name: Check required PWA assets
@@ -49,6 +60,8 @@ jobs:
           absent = sorted(required.difference(assets))
           if absent:
               raise SystemExit('5.2 security assets are not cached: ' + ', '.join(absent))
+          if 'cybertrmx-v35' not in sw:
+              raise SystemExit('The active PWA cache is not the 5.2.2 cache.')
           print(f'Validated {len(assets)} cached assets.')
           PY
 
@@ -75,3 +88,38 @@ jobs:
             exit 1
           fi
           echo 'Product copy check passed.'
+
+  ui-smoke:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install test dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run desktop and iPhone smoke tests
+        run: npm run test:ui
+
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stability-smoke-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7

@@ -40,7 +40,7 @@ async function openStableShell(page,options={}){
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   await routeExternal(page,options);
-  await page.goto('/?smoke=5.2.2',{waitUntil:'domcontentloaded'});
+  await page.goto('/?smoke=5.2.8',{waitUntil:'domcontentloaded'});
   await expect(page.locator('.floating-nav')).toHaveCount(1);
   await expect(page.locator('#boot-screen')).toHaveClass(/done/,{timeout:5000});
   await expect(page.locator('#view-overview')).toHaveClass(/active/);
@@ -80,16 +80,30 @@ test('Guide, Patch, and Operations open without replacing the shell',async({page
   await expect(page.locator('#view-guide')).toHaveClass(/active/);
   await expect(page.locator('#view-guide')).toBeVisible();
 
-  await expect.poll(()=>page.evaluate(()=>typeof window.CYBERTRMX_PATCH?.open)).toBe('function');
-  await page.evaluate(()=>window.CYBERTRMX_PATCH.open());
+  await page.locator('.floating-trigger').click();
+  await page.locator('.floating-links [data-go="patch"]').click();
   await expect(page.locator('#view-patch')).toHaveClass(/active/);
   await expect(page.locator('#view-patch')).toBeVisible();
+  await expect(page.locator('#view-patch')).toContainText('CURRENT BUILD / 5.2.8');
 
   await expect.poll(()=>page.evaluate(()=>typeof window.CYBERTRMX_OPERATIONS?.open)).toBe('function');
   await page.evaluate(()=>window.CYBERTRMX_OPERATIONS.open());
   await expect(page.locator('#view-operations')).toHaveClass(/active/);
   await expect(page.locator('#view-operations')).toBeVisible();
   await expect(page.locator('#ops-auth-card')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Production Guard mounts in Profile and exposes diagnostics',async({page})=>{
+  const errors=await openStableShell(page);
+  await page.locator('.nav-item[data-tab="profile"]').evaluate(element=>element.click());
+  await expect(page.locator('#cybertrmx-guard')).toBeVisible({timeout:5000});
+  await expect(page.locator('#cybertrmx-guard')).toContainText('PRODUCTION GUARD / 5.2.8');
+  await page.locator('#guard-toggle').click();
+  await expect(page.locator('#guard-panel')).toBeVisible();
+  await expect(page.locator('#guard-details')).toContainText('Frontend');
+  await expect(page.locator('#guard-details')).toContainText('Service worker');
+  await expect(page.locator('#guard-recover')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -120,5 +134,7 @@ test('backend library failure never blanks or blocks the core interface',async({
   await page.locator('.nav-item[data-tab="terminal"]').evaluate(element=>element.click());
   await expect(page.locator('#view-terminal')).toBeVisible();
   await expect(page.locator('.floating-trigger')).toBeVisible();
+  await page.locator('.nav-item[data-tab="profile"]').evaluate(element=>element.click());
+  await expect(page.locator('#cybertrmx-guard')).toBeVisible();
   expect(errors).toEqual([]);
 });

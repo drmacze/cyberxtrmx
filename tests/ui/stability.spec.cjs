@@ -74,6 +74,17 @@ test('Guide, Patch, and Operations open without replacing the shell',async({page
  expect(errors).toEqual([]);
 });
 
+test('production terminal routes job list to the persistent queue bridge',async({page})=>{
+ const errors=await openStableShell(page);
+ await page.locator('.nav-item[data-tab="terminal"]').evaluate(element=>element.click());
+ await expect.poll(()=>page.evaluate(()=>Boolean(window.CYBERTRMX_R3_TERMINAL_BRIDGE?.execute&&window.execute?.__cybertrmxQueue531)),{timeout:10000}).toBe(true);
+ await page.locator('#command-input').fill('job list');
+ await page.locator('#terminal-form').evaluate(form=>form.requestSubmit());
+ await expect(page.locator('#terminal-output')).not.toContainText('command not found: job');
+ await expect(page.locator('#terminal-output')).toContainText(/sign in|persistent queue|job/i);
+ expect(errors).toEqual([]);
+});
+
 test('Production Guard mounts in Profile and exposes diagnostics',async({page})=>{
  const errors=await openStableShell(page);
  await page.locator('.nav-item[data-tab="profile"]').evaluate(element=>element.click());

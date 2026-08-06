@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const V='5.3.1';
+const V='5.3.2';
 const addStyle=(href,id)=>{if(document.querySelector(`#${id}`))return;const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href=`${href}?v=${V}`;document.head.append(link)};
 const load=(src,id)=>new Promise((resolve,reject)=>{const existing=document.querySelector(`#${id}`);if(existing){if(existing.dataset.ready==='1'||existing.readyState==='complete')resolve();else{existing.addEventListener('load',()=>{existing.dataset.ready='1';resolve()},{once:true});existing.addEventListener('error',reject,{once:true})}return}const script=document.createElement('script');script.id=id;script.src=src.includes('://')?src:`${src}?v=${V}`;script.async=false;script.onload=()=>{script.dataset.ready='1';resolve()};script.onerror=reject;document.head.append(script)});
 function enableQueueForLoad(){
@@ -11,13 +11,13 @@ function enableQueueForLoad(){
 function installNativeQueueParser(){
  const bridge=window.CYBERTRMX_R3_TERMINAL_BRIDGE;
  const original=window.execute;
- if(!bridge?.execute||typeof original!=='function'||original.__cybertrmxQueue531)return false;
+ if(!bridge?.execute||typeof original!=='function'||original.__cybertrmxQueue532)return false;
  const wrapped=async raw=>{
   const cmd=String(raw||'').trim().split(/\s+/)[0]?.toLowerCase();
   if(cmd==='job'||cmd==='lookup')return bridge.execute(raw);
   return original(raw);
  };
- wrapped.__cybertrmxQueue531=true;
+ wrapped.__cybertrmxQueue532=true;
  wrapped.__cybertrmxOriginal=original;
  window.execute=wrapped;
  try{window.CYBERTRMX_PRODUCTION_EXECUTE=wrapped;(0,eval)('execute = window.CYBERTRMX_PRODUCTION_EXECUTE')}catch{}
@@ -39,6 +39,7 @@ async function boot(){
   const restoreUrl=enableQueueForLoad();
   try{await load('./jobs-r3.js','cybertrmx-jobs-v53')}finally{restoreUrl()}
   await load('./r3-terminal-bridge.js','cybertrmx-terminal-v53');
+  await load('./queue-cleanup-v532.js','cybertrmx-queue-cleanup-v532');
   if(!installNativeQueueParser()){
    let attempts=0;const timer=setInterval(()=>{attempts++;if(installNativeQueueParser()||attempts>=80)clearInterval(timer)},50);
   }

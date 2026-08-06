@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const CORE_V='5.3.5',STABILITY_V='5.3.6-rc1',TRACE_V='5.4.0-rc2';
+const CORE_V='5.3.5',STABILITY_V='5.3.6-rc1',TRACE_V='5.4.0-rc3';
 const STABILITY_536=location.pathname.includes('/staging/')||new URLSearchParams(location.search).get('stability536')==='1'||localStorage.getItem('cybertrmx-stability-536')==='1';
 const TRACE_540=new URLSearchParams(location.search).get('trace540')==='1'||localStorage.getItem('cybertrmx-trace-540')==='1';
 const addStyle=(href,id,version=CORE_V)=>{if(document.querySelector(`#${id}`))return;const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href=`${href}?v=${version}`;document.head.append(link)};
@@ -24,7 +24,7 @@ async function boot(){
   if(!installNativeQueueParser()){let attempts=0;const timer=setInterval(()=>{attempts++;if(installNativeQueueParser()||attempts>=80)clearInterval(timer)},50)}
   await load('./cloud-core.js','cybertrmx-cloud-core');
   if(STABILITY_536)await load('./stability-v536.js','cybertrmx-stability-v536',STABILITY_V);
-  if(TRACE_540)await load('./trace-lab-v540.js','cybertrmx-trace-v540',TRACE_V);
+  if(TRACE_540){await load('./trace-web-router-v540.js','cybertrmx-trace-web-router-v540',TRACE_V);await load('./trace-lab-v540.js','cybertrmx-trace-v540',TRACE_V)}
  }catch(error){console.error('CYBERTRMX production backend bootstrap failed',error)}
 }
 boot();

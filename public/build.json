@@ -1,0 +1,8 @@
+{
+  "environment": "production",
+  "version": "5.3.1",
+  "terminal_parser": "source-bootstrap-v531",
+  "source_parser_guard": true,
+  "persistent_queue": true,
+  "cache": "cybertrmx-v49"
+}

@@ -56,7 +56,7 @@ jobs:
               early = (
                   f'<script id="cybertrmx-backend-config" data-ready="1" src="./backend-config.js?v={version}"></script>\n'
                   f'<script id="cybertrmx-jobs-v53" data-ready="1" src="./jobs-r3.js?v={version}"></script>\n'
-                  f'<script id="cybertrmx-r3-terminal-bridge" src="./r3-terminal-bridge.js?v={version}"></script>\n'
+                  f'<script id="cybertrmx-terminal-v53" data-ready="1" src="./r3-terminal-bridge.js?v={version}"></script>\n'
               )
               needle = '<script src="./app.js" defer></script>'
               if 'r3-terminal-bridge.js' not in html:
@@ -146,6 +146,7 @@ jobs:
           version="$(node -p "require('./source-main/package.json').version")"
           if [ "$version" = "5.3.1" ]; then
             grep -q 'name="cybertrmx-build" content="5.3.1"' site/index.html
+            grep -q 'id="cybertrmx-terminal-v53" data-ready="1"' site/index.html
             grep -q 'r3-terminal-bridge.js?v=5.3.1' site/index.html
             grep -q 'CYBERTRMX_R3_TERMINAL_BRIDGE?.execute' site/app.js
             grep -q "const ENABLED=new URLSearchParams(location.search).get('jobs_off')!=='1';" site/jobs-r3.js

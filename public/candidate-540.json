@@ -1,11 +1,11 @@
 {
-  "candidate": "5.4.0-rc2",
+  "candidate": "5.4.0-rc3",
   "default_runtime": "5.3.5",
   "activation": "?trace540=1",
   "opt_in": true,
-  "cache": "cybertrmx-v54",
+  "cache": "cybertrmx-v55",
   "modules": [
-    "web_trace",
+    "web_trace_v2",
     "phone_numbering_plan",
     "consented_maps",
     "checkin_map_v2",
@@ -14,7 +14,16 @@
     "sealed_evidence",
     "patch_render_coordinator"
   ],
-  "backend_function": "cybertrmx-trace",
+  "backend_functions": {
+    "web_scan": "cybertrmx-trace-web-v2",
+    "remaining_trace_actions": "cybertrmx-trace"
+  },
+  "workspace_resolution": {
+    "method": "resolve_trace_workspace_rpc",
+    "identity_source": "auth.uid()",
+    "client_user_id_accepted": false,
+    "maybe_single_used": false
+  },
   "database_tables": ["trace_assets", "trace_scans", "trace_findings"],
   "web_collection": {
     "public_metadata_only": true,
@@ -22,7 +31,7 @@
     "port_scanning": false,
     "exploitation": false,
     "private_network_targets_rejected": true,
-    "response_body_limit_bytes": 450000,
+    "response_body_collected": false,
     "redirect_limit": 6
   },
   "phone_intelligence": {
@@ -41,7 +50,7 @@
   },
   "patch_rendering": {
     "owner": "single_coordinator",
-    "priority": ["5.4.0-rc2", "5.3.6-rc1", "5.3.5"],
+    "priority": ["5.4.0-rc3", "5.3.6-rc1", "5.3.5"],
     "repeated_dom_polling": false,
     "idempotent": true
   },

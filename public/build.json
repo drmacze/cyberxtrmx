@@ -1,8 +1,10 @@
 {
   "environment": "production",
-  "version": "5.3.1",
-  "terminal_parser": "source-bootstrap-v531",
+  "version": "5.3.2",
+  "terminal_parser": "source-bootstrap-v532",
   "source_parser_guard": true,
   "persistent_queue": true,
-  "cache": "cybertrmx-v49"
+  "queue_cleanup": true,
+  "hosting": "vercel",
+  "cache": "cybertrmx-v50"
 }

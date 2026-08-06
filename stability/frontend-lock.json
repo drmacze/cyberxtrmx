@@ -1,7 +1,7 @@
 {
-  "version": "5.2.8",
+  "version": "5.3.0",
   "baseline_commit": "45944c57e421161a91da1dd002eefe6b78cbf1da",
-  "description": "Critical interface files must remain byte-for-byte identical to the user-verified 5.2.7 production baseline. New work belongs in staging until the baseline is intentionally reviewed and moved.",
+  "description": "Critical interface files remain byte-for-byte identical to the user-verified production baseline. Production 5.3.0 adds isolated queue and security modules without changing the locked Home, navigation, animation, or responsive layout files.",
   "locked_paths": [
     "public/index.html",
     "public/app.js",

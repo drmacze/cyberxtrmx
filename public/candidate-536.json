@@ -1,0 +1,13 @@
+{
+  "candidate": "5.3.6-rc1",
+  "default_runtime": "5.3.5",
+  "activation": "?stability536=1",
+  "opt_in": true,
+  "read_only_health_checks": true,
+  "request_dedupe_scope": ["dashboard", "queue_status", "locations_read"],
+  "write_requests_unchanged": true,
+  "observer_scope": "#r3-queue-list",
+  "terminal_commands": ["health", "health copy", "health disable"],
+  "database_changed": false,
+  "backend_changed": false
+}

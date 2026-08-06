@@ -2,7 +2,7 @@ name: Verify CYBERTRMX
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main, staging, 'release/**']
   pull_request:
   workflow_dispatch:
 
@@ -35,10 +35,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          while IFS= read -r -d '' file; do
-            echo "Checking $file"
-            node --check "$file"
-          done < <(find public -type f -name '*.js' -print0)
+          while IFS= read -r -d '' file; do node --check "$file"; done < <(find public -type f -name '*.js' -print0)
 
       - name: Run source and contract tests
         run: npm test
@@ -49,66 +46,61 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import re
-
-          sw = Path('public/sw.js').read_text(encoding='utf-8')
-          assets = re.findall(r"'\./([^']+)'", sw)
-          missing = [asset for asset in assets if asset and not (Path('public') / asset).exists()]
-          if missing:
-              raise SystemExit('Missing cached assets: ' + ', '.join(missing))
-          required = {
-              'security-utils.js', 'security-v52.js', 'security-v52.css',
-              'command-hints-v52.js', 'tracker-engine.js', 'tracker-engine.css',
-              'recovery-527.js', 'guard-v528.js', 'guard-v528.css', 'recover.html'
-          }
-          absent = sorted(required.difference(assets))
-          if absent:
-              raise SystemExit('5.2.8 guard assets are not cached: ' + ', '.join(absent))
-          if 'cybertrmx-v42' not in sw:
-              raise SystemExit('The active PWA cache is not the 5.2.8 guarded cache.')
-          if "CACHE_NAMESPACE = 'cybertrmx-v'" not in sw:
-              raise SystemExit('Production cache namespace is not isolated.')
-          print(f'Validated {len(assets)} cached assets.')
+          import json,re
+          version=json.loads(Path('package.json').read_text())['version']
+          sw=Path('public/sw.js').read_text()
+          assets=re.findall(r"'\./([^']+)'",sw)
+          missing=[asset for asset in assets if asset and not (Path('public')/asset).exists()]
+          if missing: raise SystemExit('Missing cached assets: '+', '.join(missing))
+          required={'security-utils.js','security-r3.js','security-v52.css','jobs-r3.js','r3-terminal-bridge.js','jobs-r2.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html'}
+          absent=sorted(required.difference(assets))
+          if absent: raise SystemExit('Required 5.3 assets are not cached: '+', '.join(absent))
+          expected='cybertrmx-v48' if version=='5.3.0' else 'cybertrmx-v47-r4'
+          if expected not in sw: raise SystemExit(f'Expected cache {expected} for {version}.')
+          if "CACHE_NAMESPACE = 'cybertrmx-v'" not in sw: raise SystemExit('Production cache namespace is not isolated.')
+          print(f'Validated {version} with {len(assets)} cached assets.')
           PY
 
-      - name: Check active recovery path
+      - name: Check active production modules
         shell: bash
         run: |
           set -euo pipefail
           grep -q "guard-v528.js" public/cloud-bootstrap.js
-          grep -q "recovery-527" public/motion.js
+          grep -q "security-r3.js" public/cloud-bootstrap.js
+          grep -q "jobs-r3.js" public/cloud-bootstrap.js
+          grep -q "jobs-r2.css" public/cloud-bootstrap.js
+          grep -q "jobsFunction: 'cybertrmx-jobs'" public/backend-config.js
+          grep -q "PERSISTENT QUEUE RECEIPT" public/jobs-r3.js
           grep -q "lastRequestId" public/recovery-527.js
           grep -q "dashboardLocations" public/recovery-527.js
-          grep -q "CLEAN RELOAD" public/guard-v528.js
-          if grep -qE "transport-v523|patch-click-v525" public/cloud-bootstrap.js; then
-            echo 'Withdrawn loader is still active in connected bootstrap.'
-            exit 1
-          fi
-          echo 'Production Guard recovery path passed.'
+          if grep -qE "transport-v523|patch-click-v525|jobs-r2\.js" public/cloud-bootstrap.js; then exit 1; fi
 
       - name: Check security contracts
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "x-device-id" public/security-v52.js
-          grep -q "x-idempotency-key" public/security-v52.js
+          grep -q "x-device-id" public/security-r3.js
+          grep -q "x-idempotency-key" public/security-r3.js
+          grep -q "readInflight" public/security-r3.js
+          grep -q "Authenticator QR code" public/security-r3.js
           grep -q "x-submission-key" public/checkin.js
-          grep -q "Credentials are only accepted in the protected account form" public/security-v52.js
-          if grep -q "auth create <email> <password>" public/command-hints-v52.js; then
-            echo 'Credential-bearing terminal clue found.'
-            exit 1
-          fi
-          echo 'Security contract check passed.'
+          grep -q "Credentials are only accepted in the protected account form" public/security-r3.js
+          if grep -q "auth create <email> <password>" public/command-hints-v52.js; then exit 1; fi
+
+      - name: Check production deployment contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "activate_native_queue" .github/workflows/pages.yml
+          grep -q "production_version == '5.3.0'" .github/workflows/pages.yml
+          grep -q "CYBERTRMX_R3_TERMINAL_BRIDGE?.execute" .github/workflows/pages.yml
+          grep -q "persistent_queue" .github/workflows/pages.yml
 
       - name: Check product copy
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RniE --include='*.html' --include='*.js' --include='*.md' '\b(simulator|simulation|simulasi)\b' public README.md; then
-            echo 'Blocked product wording found.'
-            exit 1
-          fi
-          echo 'Product copy check passed.'
+          if grep -RniE --include='*.html' --include='*.js' --include='*.md' '\b(simulator|simulation|simulasi)\b' public README.md; then exit 1; fi
 
   ui-smoke:
     needs: verify

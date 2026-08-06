@@ -1,14 +1,17 @@
 {
   "candidate": "5.3.0-r4",
-  "staging_source_commit": "c3f48697c2a0ca08a0dddc385340ac30236f6e94",
+  "staging_source_commit": "b33b9008eb1567a345d13d963ce1cfefae3926a8",
   "staging_cache": "cybertrmx-staging-v47-r4",
   "terminal_parser": "native-r3-hook",
-  "database_migration": "20260806012500_cybertrmx_r3_json_payload_normalization.sql",
+  "database_migrations": [
+    "20260806012500_cybertrmx_r3_json_payload_normalization.sql",
+    "20260806013000_cybertrmx_r4_json_normalizer_security.sql"
+  ],
   "required_artifact": [
     "jobs-r3.js",
     "r3-terminal-bridge.js",
     "security-r3.js"
   ],
   "production_frontend_changed": false,
-  "triggered_at": "2026-08-06T08:28:00+07:00"
+  "triggered_at": "2026-08-06T08:33:00+07:00"
 }

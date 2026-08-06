@@ -1,12 +1,17 @@
 {
   "environment": "production",
-  "version": "5.3.3",
-  "terminal_parser": "source-bootstrap-v533",
+  "version": "5.3.4",
+  "terminal_parser": "source-bootstrap-v534",
   "source_parser_guard": true,
   "persistent_queue": true,
   "queue_cleanup": true,
   "queue_observer_scope": "queue-list",
   "navigation_freeze_guard": true,
+  "backend_gateway": true,
+  "operations_function": "cybertrmx-ops-gateway",
+  "jobs_function": "cybertrmx-jobs-gateway",
+  "locations_function": "cybertrmx-locations-gateway",
+  "checkin_function": "cybertrmx-checkin-gateway",
   "hosting": "vercel",
-  "cache": "cybertrmx-v51"
+  "cache": "cybertrmx-v52"
 }

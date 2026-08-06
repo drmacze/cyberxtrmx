@@ -1,7 +1,7 @@
 {
-  "version": "5.3.0",
+  "version": "5.3.1",
   "baseline_commit": "45944c57e421161a91da1dd002eefe6b78cbf1da",
-  "description": "Critical interface files remain byte-for-byte identical to the user-verified production baseline. Production 5.3.0 adds isolated queue and security modules without changing the locked Home, navigation, animation, or responsive layout files.",
+  "description": "Critical interface files remain byte-for-byte identical to the user-verified production baseline. Production 5.3.1 repairs the persistent queue parser through the connected bootstrap without changing Home, navigation, animation, or responsive layout files.",
   "locked_paths": [
     "public/index.html",
     "public/app.js",

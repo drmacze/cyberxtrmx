@@ -30,20 +30,22 @@ test('native terminal bridge supports the production job command surface',()=>{
   assert.match(bridge,/queue_status/);
 });
 
-test('production artifact enables queue and native parser before app.js',()=>{
-  const workflow=read('.github/workflows/pages.yml');
-  assert.match(workflow,/activate_native_queue\(Path\('site'\), production_version, True\)/);
-  assert.match(workflow,/r3-terminal-bridge\.js\?v=\{version\}/);
-  assert.match(workflow,/CYBERTRMX_R3_TERMINAL_BRIDGE\?\.execute/);
-  assert.match(workflow,/jobs_off/);
-  assert.match(workflow,/persistent_queue/);
+test('source bootstrap enables queue and replaces the native execute binding',()=>{
+  const bootstrap=read('public/cloud-bootstrap.js');
+  assert.match(bootstrap,/enableQueueForLoad/);
+  assert.match(bootstrap,/jobs_r3/);
+  assert.match(bootstrap,/r3-terminal-bridge\.js/);
+  assert.match(bootstrap,/window\.execute=wrapped/);
+  assert.match(bootstrap,/execute = window\.CYBERTRMX_PRODUCTION_EXECUTE/);
+  assert.match(bootstrap,/attempts>=80/);
 });
 
 test('production release ledger and cache include persistent queue assets',()=>{
   const patch=read('public/patch-page.js');
   const sw=read('public/sw.js');
-  assert.match(patch,/version:'5\.3\.0'/);
-  assert.match(patch,/Persistent job engine/);
-  assert.match(patch,/CURRENT BUILD \/ 5\.3\.0 \/ CACHE 48/);
+  assert.match(patch,/version:'5\.3\.1'/);
+  assert.match(patch,/Production terminal queue recovery/);
+  assert.match(patch,/CURRENT BUILD \/ 5\.3\.1 \/ CACHE 49/);
+  assert.match(sw,/cybertrmx-v49/);
   for(const asset of ['jobs-r2.css','jobs-r3.js','r3-terminal-bridge.js','security-r3.js'])assert.match(sw,new RegExp(asset.replaceAll('.','\\.')));
 });

@@ -108,13 +108,14 @@ jobs:
                   'source_ref': 'main' if production else 'staging',
                   'workflow_sha': os.environ.get('GITHUB_SHA', ''),
                   'terminal_parser': 'native-v53-hook',
+                  'source_parser_guard': production,
                   'persistent_queue': True,
               }, separators=(',', ':')), encoding='utf-8')
 
           production_version = json.loads(Path('source-main/package.json').read_text(encoding='utf-8'))['version']
           staging_version = json.loads(Path('source-staging/package.json').read_text(encoding='utf-8'))['version']
 
-          if production_version == '5.3.0':
+          if production_version.startswith('5.3.'):
               activate_native_queue(Path('site'), production_version, True)
 
           staging_index = Path('site/staging/index.html')
@@ -138,25 +139,30 @@ jobs:
 
           touch site/.nojekyll
 
-      - name: Verify production 5.3.0 artifact
+      - name: Verify production 5.3.1 artifact
         shell: bash
         run: |
           set -euo pipefail
           version="$(node -p "require('./source-main/package.json').version")"
-          if [ "$version" = "5.3.0" ]; then
-            grep -q 'name="cybertrmx-build" content="5.3.0"' site/index.html
-            grep -q 'r3-terminal-bridge.js?v=5.3.0' site/index.html
+          if [ "$version" = "5.3.1" ]; then
+            grep -q 'name="cybertrmx-build" content="5.3.1"' site/index.html
+            grep -q 'r3-terminal-bridge.js?v=5.3.1' site/index.html
             grep -q 'CYBERTRMX_R3_TERMINAL_BRIDGE?.execute' site/app.js
             grep -q "const ENABLED=new URLSearchParams(location.search).get('jobs_off')!=='1';" site/jobs-r3.js
-            grep -q "const VERSION='5.3.0';" site/jobs-r3.js
-            grep -q "const VERSION='5.3.0';" site/r3-terminal-bridge.js
-            grep -q "const VERSION='5.3.0';" site/security-r3.js
-            grep -q "const VERSION='5.3.0';" site/guard-v528.js
-            grep -q "const VERSION='5.3.0';" site/recovery-527.js
-            grep -q 'cybertrmx-v48' site/sw.js
-            grep -q 'CURRENT BUILD / 5.3.0 / CACHE 48' site/patch-page.js
+            grep -q "const VERSION='5.3.1';" site/jobs-r3.js
+            grep -q "const VERSION='5.3.1';" site/r3-terminal-bridge.js
+            grep -q "const VERSION='5.3.1';" site/security-r3.js
+            grep -q "const VERSION='5.3.1';" site/guard-v528.js
+            grep -q "const VERSION='5.3.1';" site/recovery-527.js
+            grep -q "const V='5.3.1';" site/cloud-bootstrap.js
+            grep -q 'enableQueueForLoad' site/cloud-bootstrap.js
+            grep -q 'installNativeQueueParser' site/cloud-bootstrap.js
+            grep -q 'window.execute=wrapped' site/cloud-bootstrap.js
+            grep -q 'cybertrmx-v49' site/sw.js
+            grep -q 'CURRENT BUILD / 5.3.1 / CACHE 49' site/patch-page.js
             grep -q '"environment":"production"' site/build.json
             grep -q '"persistent_queue":true' site/build.json
+            grep -q '"source_parser_guard":true' site/build.json
             if grep -q 'staging-marker.js' site/index.html; then exit 1; fi
             node --check site/app.js
             node --check site/jobs-r3.js

@@ -1,8 +1,9 @@
 {
-  "candidate": "5.4.0-rc1",
+  "candidate": "5.4.0-rc2",
   "default_runtime": "5.3.5",
   "activation": "?trace540=1",
   "opt_in": true,
+  "cache": "cybertrmx-v54",
   "modules": [
     "web_trace",
     "phone_numbering_plan",
@@ -10,7 +11,8 @@
     "checkin_map_v2",
     "asset_watch",
     "snapshot_diff",
-    "sealed_evidence"
+    "sealed_evidence",
+    "patch_render_coordinator"
   ],
   "backend_function": "cybertrmx-trace",
   "database_tables": ["trace_assets", "trace_scans", "trace_findings"],
@@ -36,6 +38,12 @@
     "apple_maps": true,
     "google_maps": true,
     "openstreetmap": true
+  },
+  "patch_rendering": {
+    "owner": "single_coordinator",
+    "priority": ["5.4.0-rc2", "5.3.6-rc1", "5.3.5"],
+    "repeated_dom_polling": false,
+    "idempotent": true
   },
   "production_ui_changed_without_opt_in": false
 }

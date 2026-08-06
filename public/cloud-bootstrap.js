@@ -17,6 +17,7 @@ async function boot(){
   await load('./security-r3.js','cybertrmx-security-v53');
   const restoreUrl=enableQueueForLoad();try{await load('./jobs-r3.js','cybertrmx-jobs-v53')}finally{restoreUrl()}
   await load('./r3-terminal-bridge.js','cybertrmx-terminal-v53');await load('./queue-cleanup-v532.js','cybertrmx-queue-cleanup-v533');await load('./patch-hotfix-v535.js','cybertrmx-patch-hotfix-v535');
+  if(STABILITY_536)await load('./patch-hotfix-v536.js','cybertrmx-patch-hotfix-v536');
   if(!installNativeQueueParser()){let attempts=0;const timer=setInterval(()=>{attempts++;if(installNativeQueueParser()||attempts>=80)clearInterval(timer)},50)}
   await load('./cloud-core.js','cybertrmx-cloud-core');
   if(STABILITY_536)await load('./stability-v536.js','cybertrmx-stability-v536');

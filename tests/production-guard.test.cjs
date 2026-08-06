@@ -6,13 +6,13 @@ const read=path=>fs.readFileSync(path,'utf8');
 const pkg=JSON.parse(read('package.json'));
 const lock=JSON.parse(read('stability/frontend-lock.json'));
 
-test('all production version sources agree on 5.3.0',()=>{
-  assert.equal(pkg.version,'5.3.0');
+test('all production version sources agree on 5.3.1',()=>{
+  assert.equal(pkg.version,'5.3.1');
   assert.equal(lock.version,pkg.version);
-  assert.match(read('public/cloud-bootstrap.js'),/const V='5\.3\.0'/);
-  assert.match(read('public/patch-page.js'),/CURRENT BUILD \/ 5\.3\.0 \/ CACHE 48/);
-  assert.match(read('public/recover.html'),/production 5\.3\.0/i);
-  assert.match(read('public/sw.js'),/cybertrmx-v48/);
+  assert.match(read('public/cloud-bootstrap.js'),/const V='5\.3\.1'/);
+  assert.match(read('public/patch-page.js'),/CURRENT BUILD \/ 5\.3\.1 \/ CACHE 49/);
+  assert.match(read('public/recover.html'),/production 5\.3\.1/i);
+  assert.match(read('public/sw.js'),/cybertrmx-v49/);
 });
 
 test('verified interface files remain locked to the stable baseline',()=>{
@@ -23,7 +23,7 @@ test('verified interface files remain locked to the stable baseline',()=>{
   ]);
 });
 
-test('production queue modules are present without editing the locked source parser',()=>{
+test('production queue parser is bound by the source bootstrap',()=>{
   const config=read('public/backend-config.js');
   const bootstrap=read('public/cloud-bootstrap.js');
   const jobs=read('public/jobs-r3.js');
@@ -31,7 +31,12 @@ test('production queue modules are present without editing the locked source par
   assert.match(config,/jobsFunction: 'cybertrmx-jobs'/);
   assert.match(bootstrap,/security-r3\.js/);
   assert.match(bootstrap,/jobs-r3\.js/);
-  assert.match(bootstrap,/jobs-r2\.css/);
+  assert.match(bootstrap,/r3-terminal-bridge\.js/);
+  assert.match(bootstrap,/enableQueueForLoad/);
+  assert.match(bootstrap,/installNativeQueueParser/);
+  assert.match(bootstrap,/window\.execute=wrapped/);
+  assert.match(bootstrap,/execute = window\.CYBERTRMX_PRODUCTION_EXECUTE/);
+  assert.match(bootstrap,/cybertrmx:queue-parser-ready/);
   assert.match(jobs,/PERSISTENT QUEUE RECEIPT/);
   assert.match(jobs,/run_lookup/);
   assert.match(jobs,/queue_status/);
@@ -39,13 +44,11 @@ test('production queue modules are present without editing the locked source par
   assert.match(bridge,/lookup <dns\|rdap\|ip>/);
 });
 
-test('Pages artifact activates the native queue parser in production and staging',()=>{
+test('Pages workflow keeps artifact verification as a secondary guard',()=>{
   const workflow=read('.github/workflows/pages.yml');
   assert.match(workflow,/branches: \[main\]/);
   assert.match(workflow,/activate_native_queue/);
-  assert.match(workflow,/production_version == '5\.3\.0'/);
   assert.match(workflow,/CYBERTRMX_R3_TERMINAL_BRIDGE\?\.execute/);
-  assert.match(workflow,/jobs_off/);
   assert.match(workflow,/persistent_queue/);
   assert.match(workflow,/site\/staging/);
   assert.match(workflow,/noindex,nofollow/);

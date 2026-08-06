@@ -24,8 +24,17 @@ function decorateQueue(){
     const actions=$('.r2-queue-actions',row);if(actions&&!$('[data-r532-copy]',actions)){const button=document.createElement('button');button.type='button';button.className='ops-mini';button.dataset.r532Copy=id;button.textContent='COPY ID';actions.prepend(button)}
   });
 }
+function extendHints(){
+  const api=window.CYBERTRMX_COMMAND_HINTS;if(!api?.commands)return false;
+  const items=[
+    {command:'job events <job-id-or-prefix>',category:'Jobs',description:'Show the persistent queue lifecycle and provider stages.'},
+    {command:'job copy <job-id-or-prefix>',category:'Jobs',description:'Copy the complete job UUID from a short prefix.'}
+  ];
+  items.forEach(item=>{if(!api.commands.some(existing=>existing.command===item.command))api.commands.push(item)});
+  return true;
+}
 document.addEventListener('click',async event=>{const button=event.target.closest?.('[data-r532-copy]');if(!button)return;event.preventDefault();const id=button.dataset.r532Copy;await copyText(id);updateCopyButton(button,id)},true);
 const observer=new MutationObserver(decorateQueue);
-function init(){decorateQueue();observer.observe(document.body,{subtree:true,childList:true});window.dispatchEvent(new CustomEvent('cybertrmx:queue-cleanup-ready',{detail:{version:VERSION}}))}
+function init(){decorateQueue();observer.observe(document.body,{subtree:true,childList:true});if(!extendHints()){let tries=0;const timer=setInterval(()=>{tries++;if(extendHints()||tries>80)clearInterval(timer)},100)}window.dispatchEvent(new CustomEvent('cybertrmx:queue-cleanup-ready',{detail:{version:VERSION}}))}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

@@ -1,0 +1,29 @@
+{
+  "release": "5.3.0",
+  "source_candidate": "5.3.0-r4",
+  "production_cache": "cybertrmx-v48",
+  "staging_cache": "cybertrmx-staging-v47-r4",
+  "terminal_parser": "native-v53-hook",
+  "persistent_queue": true,
+  "backend_functions": [
+    "cybertrmx-ops",
+    "cybertrmx-jobs",
+    "cybertrmx-worker"
+  ],
+  "database_migrations": [
+    "20260806012500_cybertrmx_r3_json_payload_normalization.sql",
+    "20260806013000_cybertrmx_r4_json_normalizer_security.sql"
+  ],
+  "locked_interface_changed": false,
+  "verified_device": "iPhone Safari",
+  "verified_flows": [
+    "job list",
+    "lookup ip 1.1.1.1",
+    "persistent queue receipt",
+    "job status",
+    "retry",
+    "worker completion",
+    "evidence sealing"
+  ],
+  "promoted_at": "2026-08-07T00:30:00+07:00"
+}

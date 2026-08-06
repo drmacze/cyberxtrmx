@@ -23,7 +23,7 @@
     const ua=String(navigatorLike.userAgent||''),platform=String(navigatorLike.platform||'');
     const family=/iPhone/i.test(ua)?'iPhone':/iPad/i.test(ua)?'iPad':/Android/i.test(ua)?'Android':/Mac/i.test(ua+platform)?'macOS':/Win/i.test(ua+platform)?'Windows':/Linux/i.test(ua+platform)?'Linux':'Device';
     const browser=/CriOS|Chrome/i.test(ua)?'Chrome':/FxiOS|Firefox/i.test(ua)?'Firefox':/EdgiOS|Edg/i.test(ua)?'Edge':/Safari/i.test(ua)?'Safari':'Browser';
-    return {platform:family,browser,label:`${family} · ${browser}`};
+    return {platform:family,browser,label:`${family} / ${browser}`};
   }
   function passwordAssessment(password){
     const value=String(password||''),lower=value.toLowerCase();let score=0;const notes=[];

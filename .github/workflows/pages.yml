@@ -47,37 +47,25 @@ jobs:
           import json
           import os
 
-          version = json.loads(Path('source-staging/package.json').read_text(encoding='utf-8'))['version']
-          index = Path('site/staging/index.html')
-          html = index.read_text(encoding='utf-8')
+          def activate_native_queue(root: Path, version: str, production: bool) -> None:
+              index = root / 'index.html'
+              html = index.read_text(encoding='utf-8')
+              if 'name="cybertrmx-build"' not in html:
+                  html = html.replace('</head>', f'<meta name="cybertrmx-build" content="{version}">\n</head>', 1)
 
-          if 'name="robots"' not in html:
-              html = html.replace(
-                  '<meta charset="utf-8">',
-                  '<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">',
-                  1,
-              )
-          if 'name="cybertrmx-build"' not in html:
-              html = html.replace(
-                  '</head>',
-                  f'<meta name="cybertrmx-build" content="{version}">\n</head>',
-                  1,
-              )
-
-          native_queue = version.startswith('5.3.0-r')
-          if native_queue:
               early = (
                   f'<script id="cybertrmx-backend-config" data-ready="1" src="./backend-config.js?v={version}"></script>\n'
-                  f'<script id="cybertrmx-jobs-r3" data-ready="1" src="./jobs-r3.js?v={version}"></script>\n'
+                  f'<script id="cybertrmx-jobs-v53" data-ready="1" src="./jobs-r3.js?v={version}"></script>\n'
                   f'<script id="cybertrmx-r3-terminal-bridge" src="./r3-terminal-bridge.js?v={version}"></script>\n'
               )
               needle = '<script src="./app.js" defer></script>'
               if 'r3-terminal-bridge.js' not in html:
                   if needle not in html:
-                      raise SystemExit('Unable to locate app.js in staging index.')
+                      raise SystemExit(f'Unable to locate app.js in {root}.')
                   html = html.replace(needle, early + needle, 1)
+              index.write_text(html, encoding='utf-8')
 
-              app = Path('site/staging/app.js')
+              app = root / 'app.js'
               app_source = app.read_text(encoding='utf-8')
               parser_needle = "if(!cmd)return;line(`root@trmx:"
               parser_hook = (
@@ -88,34 +76,96 @@ jobs:
               )
               if 'CYBERTRMX_R3_TERMINAL_BRIDGE?.execute' not in app_source:
                   if parser_needle not in app_source:
-                      raise SystemExit('Unable to locate the native terminal parser hook point.')
+                      raise SystemExit(f'Unable to locate native terminal parser in {root}.')
                   app_source = app_source.replace(parser_needle, parser_hook, 1)
                   app.write_text(app_source, encoding='utf-8')
 
-          marker = f'<script src="./staging-marker.js?v={version}"></script>'
-          if 'staging-marker.js' not in html:
-              html = html.replace('</body>', f'{marker}\n</body>')
-          index.write_text(html, encoding='utf-8')
+              for name in ('jobs-r3.js', 'r3-terminal-bridge.js', 'security-r3.js'):
+                  path = root / name
+                  source = path.read_text(encoding='utf-8')
+                  source = source.replace("const VERSION='5.3.0-r3';", f"const VERSION='{version}';")
+                  path.write_text(source, encoding='utf-8')
 
-          sw = Path('site/staging/sw.js')
-          sw_source = sw.read_text(encoding='utf-8')
-          sw_source = sw_source.replace("const CACHE = 'cybertrmx-", "const CACHE = 'cybertrmx-staging-")
-          sw_source = sw_source.replace("const CACHE_NAMESPACE = 'cybertrmx-v'", "const CACHE_NAMESPACE = 'cybertrmx-staging-v'")
-          sw.write_text(sw_source, encoding='utf-8')
+              for name in ('guard-v528.js', 'recovery-527.js'):
+                  path = root / name
+                  source = path.read_text(encoding='utf-8')
+                  source = source.replace("const VERSION='5.2.8';", f"const VERSION='{version}';")
+                  path.write_text(source, encoding='utf-8')
 
-          Path('site/staging/build.json').write_text(
-              json.dumps({
-                  'environment': 'staging',
+              jobs = root / 'jobs-r3.js'
+              jobs_source = jobs.read_text(encoding='utf-8')
+              if production:
+                  old = "const ENABLED=location.pathname.includes('/staging/')||new URLSearchParams(location.search).get('jobs_r3')==='1';"
+                  new = "const ENABLED=new URLSearchParams(location.search).get('jobs_off')!=='1';"
+                  if old not in jobs_source and new not in jobs_source:
+                      raise SystemExit('Unable to locate production queue feature gate.')
+                  jobs_source = jobs_source.replace(old, new)
+                  jobs.write_text(jobs_source, encoding='utf-8')
+
+              (root / 'build.json').write_text(json.dumps({
+                  'environment': 'production' if production else 'staging',
                   'version': version,
-                  'source_ref': 'staging',
+                  'source_ref': 'main' if production else 'staging',
                   'workflow_sha': os.environ.get('GITHUB_SHA', ''),
-                  'terminal_parser': 'native-r3-hook' if native_queue else 'legacy',
-              }, separators=(',', ':')),
-              encoding='utf-8',
-          )
+                  'terminal_parser': 'native-v53-hook',
+                  'persistent_queue': True,
+              }, separators=(',', ':')), encoding='utf-8')
+
+          production_version = json.loads(Path('source-main/package.json').read_text(encoding='utf-8'))['version']
+          staging_version = json.loads(Path('source-staging/package.json').read_text(encoding='utf-8'))['version']
+
+          if production_version == '5.3.0':
+              activate_native_queue(Path('site'), production_version, True)
+
+          staging_index = Path('site/staging/index.html')
+          staging_html = staging_index.read_text(encoding='utf-8')
+          if 'name="robots"' not in staging_html:
+              staging_html = staging_html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex,nofollow">', 1)
+              staging_index.write_text(staging_html, encoding='utf-8')
+          if staging_version.startswith('5.3.0-r'):
+              activate_native_queue(Path('site/staging'), staging_version, False)
+          marker = f'<script src="./staging-marker.js?v={staging_version}"></script>'
+          staging_html = staging_index.read_text(encoding='utf-8')
+          if 'staging-marker.js' not in staging_html:
+              staging_index.write_text(staging_html.replace('</body>', f'{marker}\n</body>'), encoding='utf-8')
+
+          staging_sw = Path('site/staging/sw.js')
+          staging_sw_source = staging_sw.read_text(encoding='utf-8')
+          staging_sw_source = staging_sw_source.replace("const CACHE = 'cybertrmx-", "const CACHE = 'cybertrmx-staging-")
+          staging_sw_source = staging_sw_source.replace("const CACHE_NAMESPACE = 'cybertrmx-v'", "const CACHE_NAMESPACE = 'cybertrmx-staging-v'")
+          staging_sw.write_text(staging_sw_source, encoding='utf-8')
           PY
 
           touch site/.nojekyll
+
+      - name: Verify production 5.3.0 artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./source-main/package.json').version")"
+          if [ "$version" = "5.3.0" ]; then
+            grep -q 'name="cybertrmx-build" content="5.3.0"' site/index.html
+            grep -q 'r3-terminal-bridge.js?v=5.3.0' site/index.html
+            grep -q 'CYBERTRMX_R3_TERMINAL_BRIDGE?.execute' site/app.js
+            grep -q "const ENABLED=new URLSearchParams(location.search).get('jobs_off')!=='1';" site/jobs-r3.js
+            grep -q "const VERSION='5.3.0';" site/jobs-r3.js
+            grep -q "const VERSION='5.3.0';" site/r3-terminal-bridge.js
+            grep -q "const VERSION='5.3.0';" site/security-r3.js
+            grep -q "const VERSION='5.3.0';" site/guard-v528.js
+            grep -q "const VERSION='5.3.0';" site/recovery-527.js
+            grep -q 'cybertrmx-v48' site/sw.js
+            grep -q 'CURRENT BUILD / 5.3.0 / CACHE 48' site/patch-page.js
+            grep -q '"environment":"production"' site/build.json
+            grep -q '"persistent_queue":true' site/build.json
+            if grep -q 'staging-marker.js' site/index.html; then exit 1; fi
+            node --check site/app.js
+            node --check site/jobs-r3.js
+            node --check site/r3-terminal-bridge.js
+            node --check site/security-r3.js
+            node --check site/guard-v528.js
+            node --check site/recovery-527.js
+            node --check site/cloud-bootstrap.js
+          fi
 
       - name: Verify staging artifact identity
         shell: bash
@@ -125,15 +175,11 @@ jobs:
           grep -q "name=\"cybertrmx-build\" content=\"${version}\"" site/staging/index.html
           grep -q "STAGING / ${version}" site/staging/staging-marker.js
           if [[ "$version" == 5.3.0-r* ]]; then
-            grep -q "cybertrmx-staging-v" site/staging/sw.js
-            grep -q "r3-terminal-bridge.js" site/staging/index.html
-            grep -q "CYBERTRMX_R3_TERMINAL_BRIDGE?.execute" site/staging/app.js
-            grep -q '"terminal_parser":"native-r3-hook"' site/staging/build.json
+            grep -q 'r3-terminal-bridge.js' site/staging/index.html
+            grep -q 'CYBERTRMX_R3_TERMINAL_BRIDGE?.execute' site/staging/app.js
+            grep -q '"environment":"staging"' site/staging/build.json
           fi
-          if [ "$version" = "5.3.0-r4" ]; then
-            grep -q "cybertrmx-staging-v47-r4" site/staging/sw.js
-          fi
-          echo "Verified deployable staging artifact ${version}."
+          if [ "$version" = "5.3.0-r4" ]; then grep -q 'cybertrmx-staging-v47-r4' site/staging/sw.js; fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v6

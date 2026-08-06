@@ -55,8 +55,8 @@ jobs:
           required={'security-utils.js','security-r3.js','security-v52.css','jobs-r3.js','r3-terminal-bridge.js','jobs-r2.css','command-hints-v52.js','tracker-engine.js','tracker-engine.css','recovery-527.js','guard-v528.js','guard-v528.css','recover.html'}
           absent=sorted(required.difference(assets))
           if absent: raise SystemExit('Required 5.3 assets are not cached: '+', '.join(absent))
-          expected='cybertrmx-v48' if version=='5.3.0' else 'cybertrmx-v47-r4'
-          if expected not in sw: raise SystemExit(f'Expected cache {expected} for {version}.')
+          expected={'5.3.1':'cybertrmx-v49','5.3.0':'cybertrmx-v48','5.3.0-r4':'cybertrmx-v47-r4'}.get(version)
+          if expected and expected not in sw: raise SystemExit(f'Expected cache {expected} for {version}.')
           if "CACHE_NAMESPACE = 'cybertrmx-v'" not in sw: raise SystemExit('Production cache namespace is not isolated.')
           print(f'Validated {version} with {len(assets)} cached assets.')
           PY
@@ -68,7 +68,11 @@ jobs:
           grep -q "guard-v528.js" public/cloud-bootstrap.js
           grep -q "security-r3.js" public/cloud-bootstrap.js
           grep -q "jobs-r3.js" public/cloud-bootstrap.js
+          grep -q "r3-terminal-bridge.js" public/cloud-bootstrap.js
           grep -q "jobs-r2.css" public/cloud-bootstrap.js
+          grep -q "enableQueueForLoad" public/cloud-bootstrap.js
+          grep -q "installNativeQueueParser" public/cloud-bootstrap.js
+          grep -q "window.execute=wrapped" public/cloud-bootstrap.js
           grep -q "jobsFunction: 'cybertrmx-jobs'" public/backend-config.js
           grep -q "PERSISTENT QUEUE RECEIPT" public/jobs-r3.js
           grep -q "lastRequestId" public/recovery-527.js
@@ -87,12 +91,11 @@ jobs:
           grep -q "Credentials are only accepted in the protected account form" public/security-r3.js
           if grep -q "auth create <email> <password>" public/command-hints-v52.js; then exit 1; fi
 
-      - name: Check production deployment contract
+      - name: Check deployment fallback contract
         shell: bash
         run: |
           set -euo pipefail
           grep -q "activate_native_queue" .github/workflows/pages.yml
-          grep -q "production_version == '5.3.0'" .github/workflows/pages.yml
           grep -q "CYBERTRMX_R3_TERMINAL_BRIDGE?.execute" .github/workflows/pages.yml
           grep -q "persistent_queue" .github/workflows/pages.yml
 

@@ -5,5 +5,6 @@ window.CYBERTRMX_BACKEND = Object.freeze({
   jobsFunction: 'cybertrmx-jobs-gateway',
   checkinFunction: 'cybertrmx-checkin-gateway',
   locationsFunction: 'cybertrmx-locations-gateway',
-  gatewayVersion: '5.3.4'
+  traceFunction: 'cybertrmx-trace',
+  gatewayVersion: '5.4.0-rc1'
 });

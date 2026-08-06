@@ -1,0 +1,41 @@
+{
+  "candidate": "5.4.0-rc1",
+  "default_runtime": "5.3.5",
+  "activation": "?trace540=1",
+  "opt_in": true,
+  "modules": [
+    "web_trace",
+    "phone_numbering_plan",
+    "consented_maps",
+    "checkin_map_v2",
+    "asset_watch",
+    "snapshot_diff",
+    "sealed_evidence"
+  ],
+  "backend_function": "cybertrmx-trace",
+  "database_tables": ["trace_assets", "trace_scans", "trace_findings"],
+  "web_collection": {
+    "public_metadata_only": true,
+    "authorization_confirmation_required": true,
+    "port_scanning": false,
+    "exploitation": false,
+    "private_network_targets_rejected": true,
+    "response_body_limit_bytes": 450000,
+    "redirect_limit": 6
+  },
+  "phone_intelligence": {
+    "numbering_plan_only": true,
+    "lawful_purpose_confirmation_required": true,
+    "live_location": false,
+    "subscriber_identity": false,
+    "raw_number_stored": false
+  },
+  "maps": {
+    "location_source": "explicitly_consented_checkin",
+    "accuracy_circle": true,
+    "apple_maps": true,
+    "google_maps": true,
+    "openstreetmap": true
+  },
+  "production_ui_changed_without_opt_in": false
+}
